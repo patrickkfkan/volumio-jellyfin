@@ -385,9 +385,9 @@ ControllerJellyfin.prototype.seek = function (position) {
     return this.playController.seek(position);
 }
 
-ControllerJellyfin.prototype.prefetch = function (trackBlock) {
+/*ControllerJellyfin.prototype.prefetch = function (trackBlock) {
     return this.playController.prefetch(trackBlock);
-};
+};*/
 
 ControllerJellyfin.prototype.search = function(query) {
     return this.searchController.search(query);
