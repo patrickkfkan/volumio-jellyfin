@@ -25,6 +25,28 @@ Status :Jellyfin Successfully Installed, Do you want to enable the plugin now?
 
 Now access Volumio in a web browser. Go to ``Plugins -> Installed plugins`` and enable the Jellyfin plugin by activating the switch next to it.
 
+#### Updating
+
+When a new version of the plugin becomes available, you can ssh into your Volumio device and update as follows (assuming you have not deleted the directory which you cloned from this repo):
+
+```
+volumio:~$ cd ~/jellyfin-plugin/volumio-jellyfin/
+volumio:~/jellyfin-plugin/volumio-jellyfin$ git pull
+...
+volumio:~/jellyfin-plugin/volumio-jellyfin$ volumio plugin update
+
+This command will update the plugin on your device
+...
+Progress: 100
+Status :Successfully updated plugin
+
+// If the process appears to hang at this point, just press Ctrl-C to return to the terminal.
+
+volumio:~/jellyfin-plugin/volumio-jellyfin$ sudo systemctl restart volumio
+```
+
+#### Adding a Jellyfin Server
+
 With the plugin activated, the next thing you would want to do is add a Jellyfin server. The server can be on the same network as your Volumio device, or it can be remote (of course, you would have to configure the server so that it is accessible from the Internet). You can add a server in the ```Add a Server``` section of the plugin settings.
 
 
@@ -58,3 +80,11 @@ You need to restart Volumio for changes to be applied. Would you like to do that
 
 Volumio restarted
 ```
+
+#### Changelog
+
+0.1.0b-20201222:
+- [Fixed] Volumio playlist items added from queue cannot be played
+
+0.1.0b
+- Initial release
