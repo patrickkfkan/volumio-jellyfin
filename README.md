@@ -83,6 +83,10 @@ Volumio restarted
 
 #### Changelog
 
+0.1.1b-20210905:
+- [Added] Filters
+- [Changed] Miscellaneous UI changes
+
 0.1.0b-20201222:
 - [Fixed] Volumio playlist items added from queue cannot be played
 
