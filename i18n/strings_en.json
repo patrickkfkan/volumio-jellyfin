@@ -76,6 +76,7 @@
     "JELLYFIN_FILTER_YEAR_TITLE": "Years",
     "JELLYFIN_FILTER_SORT_BY_TITLE": "Sort By",
     "JELLYFIN_FILTER_SORT_ORDER_TITLE": "Sort Order",
+    "JELLYFIN_FILTER_REMEMBER": "Remember Filter Selection",
     "JELLYFIN_FAVORITES": "Favorites",
     "JELLYFIN_PLAYED": "Played",
     "JELLYFIN_UNPLAYED": "Unplayed",

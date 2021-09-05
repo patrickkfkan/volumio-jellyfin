@@ -93,7 +93,8 @@
                 "data": [
                     "itemsPerPage",
                     "showAllAlbumTracks",
-                    "showAllPlaylistTracks"
+                    "showAllPlaylistTracks",
+                    "rememberFilters"
                 ]
             },
             "content": [
@@ -115,6 +116,12 @@
                     "element": "switch",
                     "value": true,
                     "label": "TRANSLATE.JELLYFIN_SHOW_ALL_PLAYLIST_TRACKS"
+                },
+                {
+                    "id": "rememberFilters",
+                    "element": "switch",
+                    "value": true,
+                    "label": "TRANSLATE.JELLYFIN_FILTER_REMEMBER"
                 }
             ]
         },

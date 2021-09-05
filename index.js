@@ -55,9 +55,11 @@ ControllerJellyfin.prototype.getUIConfig = function() {
         let itemsPerPage = jellyfin.getConfigValue('itemsPerPage', 47);
         let showAllAlbumTracks = jellyfin.getConfigValue('showAllAlbumTracks', true);
         let showAllPlaylistTracks = jellyfin.getConfigValue('showAllPlaylistTracks', true);
+        let rememberFilters = jellyfin.getConfigValue('rememberFilters', true);
         browseSettingsUIConf.content[0].value = itemsPerPage;
         browseSettingsUIConf.content[1].value = showAllAlbumTracks;
         browseSettingsUIConf.content[2].value = showAllPlaylistTracks;
+        browseSettingsUIConf.content[3].value = rememberFilters;
 
         // Play / Add to Queue section
         let maxTracks = jellyfin.getConfigValue('maxTracks', 100);
@@ -182,7 +184,8 @@ ControllerJellyfin.prototype.saveBrowseSettings = function(data) {
 
     let showKeys = [
         'showAllAlbumTracks',
-        'showAllPlaylistTracks'
+        'showAllPlaylistTracks',
+        'rememberFilters'
     ];
     showKeys.forEach( (key) => {
         self.config.set(key, data[key]);

@@ -77,6 +77,7 @@
     "JELLYFIN_FILTER_SORT_BY_TITLE": "分类",
     "JELLYFIN_FILTER_SORT_ORDER_TITLE": "分类顺序",
     "JELLYFIN_FAVORITES": "我的最爱",
+    "JELLYFIN_FILTER_REMEMBER": "记住滤镜选择",
     "JELLYFIN_PLAYED": "已播放",
     "JELLYFIN_UNPLAYED": "未播放",
     "JELLYFIN_NAME": "名称",
