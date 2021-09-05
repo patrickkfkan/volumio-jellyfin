@@ -49,7 +49,7 @@
     "JELLYFIN_FAVORITE_ARTISTS": "Favorite Artists",
     "JELLYFIN_FAVORITE_ALBUMS": "Favorite Albums",
     "JELLYFIN_FAVORITE_SONGS": "Favorite Songs",
-    "JELLYFIN_SEARCH_LIST_TITLE": "Jellyfin: {} on {}",
+    "JELLYFIN_SEARCH_LIST_TITLE": "{} <i class=\"fa fa-angle-right\" style=\"margin: 0px 10px;\"></i> {}",
     "JELLYFIN_SPECIFY_HOST": "You must specify a host",
     "JELLYFIN_INVALID_HOST": "Invalid host URL",
     "JELLYFIN_SERVER_ADDED": "Server added",
@@ -96,6 +96,5 @@
     "JELLYFIN_ASCENDING": "Ascending",
     "JELLYFIN_DESCENDING": "Descending",
     "JELLYFIN_RESET": "Reset",
-    "JELLYFIN_PAGE_TITLE": "{} <i class=\"fa fa-angle-right\" style=\"margin: 0px 10px;\"></i> {}",
     "JELLYFIN_ITEMS_MATCHING": "{} matching \"{}\""
 }

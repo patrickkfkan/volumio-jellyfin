@@ -49,7 +49,7 @@
     "JELLYFIN_FAVORITE_ARTISTS": "最愛的藝人",
     "JELLYFIN_FAVORITE_ALBUMS": "最愛專輯",
     "JELLYFIN_FAVORITE_SONGS": "最愛的歌曲",
-    "JELLYFIN_SEARCH_LIST_TITLE": "Jellyfin: {1}上的{0}",
+    "JELLYFIN_SEARCH_LIST_TITLE": "{} <i class=\"fa fa-angle-right\" style=\"margin: 0px 10px;\"></i> {}",
     "JELLYFIN_SPECIFY_HOST": "必須提供主機網址",
     "JELLYFIN_INVALID_HOST": "主機網址無效",
     "JELLYFIN_SERVER_ADDED": "成功新增伺服器",
@@ -96,6 +96,5 @@
     "JELLYFIN_ASCENDING": "遞增",
     "JELLYFIN_DESCENDING": "降序",
     "JELLYFIN_RESET": "重設",
-    "JELLYFIN_PAGE_TITLE": "{} <i class=\"fa fa-angle-right\" style=\"margin: 0px 10px;\"></i> {}",
     "JELLYFIN_ITEMS_MATCHING": "匹配\"{1}\"的{0}"
   }
