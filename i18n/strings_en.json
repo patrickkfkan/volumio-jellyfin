@@ -14,7 +14,7 @@
     "JELLYFIN_SHOW_ALL_ALBUM_TRACKS": "Show all tracks when viewing an album",
     "JELLYFIN_SHOW_ALL_PLAYLIST_TRACKS": "Show all tracks when viewing a playlist",
     "JELLYFIN_PLAY_ADD": "Play / Add to Queue",
-    "JELLYFIN_PLAY_ADD_DESC": "You can play or add tracks under certain items to the queue. You can, for example, play songs by an artist or matching a genre. The following settings limit the number of tracks that will be played or queued each time. Note that they do not apply when you are playing or adding all tracks from within an album or playlist. In such cases, Volumio will commit all songs currently displayed in the tracklist.",
+    "JELLYFIN_PLAY_ADD_DESC": "Specify the maximum number of tracks to add to the queue when you click the Play button of a folder or in the header.",
     "JELLYFIN_MAX_TRACKS": "Maximum Number of Tracks",
     "JELLYFIN_NO_MAX_TRACKS_SINGLE_ALBUM": "- Do not apply to play / add single Album",
     "JELLYFIN_NO_MAX_TRACKS_SINGLE_PLAYLIST": "- Do not apply to play / add single Playlist",

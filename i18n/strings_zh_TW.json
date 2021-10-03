@@ -14,7 +14,7 @@
     "JELLYFIN_SHOW_ALL_ALBUM_TRACKS": "瀏覽專輯時顯示所有曲目",
     "JELLYFIN_SHOW_ALL_PLAYLIST_TRACKS": "瀏覽播放清單時顯示所有曲目",
     "JELLYFIN_PLAY_ADD": "播放 / 新增至佇列",
-    "JELLYFIN_PLAY_ADD_DESC": "你可以選擇播放或佇列某些項目中的曲目。譬如說，你可以播放一個藝人或符合一個風格的歌曲。以下設定限制每次可播放或佇列的曲目數量。請注意，此等設定並不適用於在觀看專輯或播放清單內的曲目列表時，選擇播放或佇列當中的所有曲目。在該情況下，Volumio將會播放或佇列當前顯示的所有歌曲。",
+    "JELLYFIN_PLAY_ADD_DESC": "設定在文件夾或標題欄上點擊播放按鈕時，最多添加到佇列的曲目數量。",
     "JELLYFIN_MAX_TRACKS": "曲目數量上限",
     "JELLYFIN_NO_MAX_TRACKS_SINGLE_ALBUM": "- 播放或佇列單一專輯時不適用",
     "JELLYFIN_NO_MAX_TRACKS_SINGLE_PLAYLIST": "- 播放或佇列單一播放清單時不適用",
