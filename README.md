@@ -83,6 +83,12 @@ Volumio restarted
 
 #### Changelog
 
+0.1.2-a:
+- [Added] 'Random' sort option in All Songs
+- [Changed] Apply filters when playing top-level folders (e.g. clicking Play button on 'Albums' and 'All Songs')
+- [Fixed] Next Page URIs exploded, resulting in extra songs added to queue
+- [Changed]: Use semantic versioning from now on
+
 0.1.1b-20210905:
 - [Added] Filters
 - [Changed] Miscellaneous UI changes
