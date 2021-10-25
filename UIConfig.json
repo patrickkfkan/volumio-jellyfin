@@ -251,14 +251,14 @@
             ]
         },
         {
-            "id": "section_my_media_collection",
+            "id": "section_my_media_library",
             "element": "section",
-            "label": "TRANSLATE.JELLYFIN_MY_MEDIA_COLLECTION",
+            "label": "TRANSLATE.JELLYFIN_MY_MEDIA_LIBRARY",
             "icon": "fa-music",
             "onSave": {
                 "type": "controller",
                 "endpoint": "music_service/jellyfin",
-                "method": "saveMyMediaCollectionSettings"
+                "method": "saveMyMediaLibrarySettings"
             },
             "saveButton": {
                 "label": "TRANSLATE.JELLYFIN_SAVE",
