@@ -96,6 +96,7 @@ ControllerJellyfin.prototype.getUIConfig = function() {
         let favoriteAlbumsSectionItems = jellyfin.getConfigValue('favoriteAlbumsSectionItems', 5);
         let showFavoriteSongsSection = jellyfin.getConfigValue('showFavoriteSongsSection', true);
         let favoriteSongsSectionItems = jellyfin.getConfigValue('favoriteSongsSectionItems', 5);
+        let collectionInSectionItems = jellyfin.getConfigValue('collectionInSectionItems', 11);
         myMediaLibraryUIConf.content[0].value = showLatestMusicSection;
         myMediaLibraryUIConf.content[1].value = latestMusicSectionItems;
         myMediaLibraryUIConf.content[2].value = showRecentlyPlayedSection;
@@ -108,6 +109,7 @@ ControllerJellyfin.prototype.getUIConfig = function() {
         myMediaLibraryUIConf.content[9].value = favoriteAlbumsSectionItems;
         myMediaLibraryUIConf.content[10].value = showFavoriteSongsSection;
         myMediaLibraryUIConf.content[11].value = favoriteSongsSectionItems;
+        myMediaLibraryUIConf.content[12].value = collectionInSectionItems;
 
         defer.resolve(uiconf);
     })
@@ -278,7 +280,8 @@ ControllerJellyfin.prototype.saveMyMediaLibrarySettings = function(data) {
         'frequentlyPlayedSectionItems',
         'favoriteArtistsSectionItems',
         'favoriteAlbumsSectionItems',
-        'favoriteSongsSectionItems'
+        'favoriteSongsSectionItems',
+        'collectionInSectionItems'
     ];
     let hasInvalidItemsValue = false;
     itemsKeys.forEach(( key) => {
