@@ -1,6 +1,6 @@
 {
   "name": "jellyfin",
-  "version": "0.1.2-a",
+  "version": "0.1.3-a",
   "description": "Jellyfin plugin for Volumio",
   "main": "index.js",
   "scripts": {
