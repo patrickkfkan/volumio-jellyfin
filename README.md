@@ -101,6 +101,10 @@ Volumio restarted
 
 #### Changelog
 
+0.1.3:
+- [Changed] Minor change to loading of translations
+- [Changed] Update readme after branching from `master` for Volumio 2.x
+
 0.1.3-a:
 - [Added] Collections support
 - [Fixed] Wrong selections showing in filter views
