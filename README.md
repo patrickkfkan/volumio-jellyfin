@@ -1,18 +1,32 @@
 # Jellyfin plugin for Volumio
 
-Volumio plugin for playing audio from one or more [Jellyfin](https://jellyfin.org/) servers. It has been tested on Volumio 2.834 + Jellyfin 10.6.4.
+Volumio plugin for playing audio from one or more [Jellyfin](https://jellyfin.org/) servers. It has been tested with Jellyfin 10.6.4 to 10.7.6.
+
+This repository has two branches:
+
+1. The `master` branch is targeted towards Volumio 3.
+2. The `volumio-2.x` branch is targeted towards Volumio 2.x.
+
+The focus is on the `master` branch. The `volumio-2.x` branch will only be maintained if it is practically feasible and still worthwhile to do so.
 
 #### Getting Started
 
-To install the Jellyfin plugin, first make sure you have [enabled SSH access](https://volumio.github.io/docs/User_Manual/SSH.html) on your Volumio device. Then, in a terminal:
+As at the time of this readme, the plugin can be installed from the plugin store of Volumio 2.x. This may no longer be the case when Volumio 3 completely replaces Volumio 2. You can still manually install and update the plugin on Volumio 2.x by following the steps below.
+
+### Manual Installation
+
+To manually install the Jellyfin plugin, first make sure you have [enabled SSH access](https://volumio.github.io/docs/User_Manual/SSH.html) on your Volumio device. Then, in a terminal:
 
 ```
 $ ssh volumio@<your_Volumio_address>
+
+// You can copy and paste each line after the $ sign
 
 volumio:~$ mkdir jellyfin-plugin
 volumio:~$ cd jellyfin-plugin
 volumio:~/jellyfin-plugin$ git clone https://github.com/patrickkfkan/volumio-jellyfin.git
 volumio:~/jellyfin-plugin$ cd volumio-jellyfin
+volumio:~/jellyfin-plugin$ git checkout volumio-2.x
 volumio:~/jellyfin-plugin/volumio-jellyfin$ volumio plugin install
 
 ...
@@ -25,12 +39,16 @@ Status :Jellyfin Successfully Installed, Do you want to enable the plugin now?
 
 Now access Volumio in a web browser. Go to ``Plugins -> Installed plugins`` and enable the Jellyfin plugin by activating the switch next to it.
 
-#### Updating
+### Manual Update
 
 When a new version of the plugin becomes available, you can ssh into your Volumio device and update as follows (assuming you have not deleted the directory which you cloned from this repo):
 
 ```
+// You can copy and paste each line after the $ sign
+
 volumio:~$ cd ~/jellyfin-plugin/volumio-jellyfin/
+volumio:~/jellyfin-plugin/volumio-jellyfin$ git pull
+volumio:~/jellyfin-plugin/volumio-jellyfin$ git checkout volumio-2.x
 volumio:~/jellyfin-plugin/volumio-jellyfin$ git pull
 ...
 volumio:~/jellyfin-plugin/volumio-jellyfin$ volumio plugin update
@@ -57,7 +75,7 @@ You can add multiple servers, and those that are reachable will appear when you 
 #### Notes
 
 - Audio is served through Direct Streaming. This means when you play a song, it will be streamed to Volumio in its original format without any modifications. This gives you the highest sound quality possible but, if you are streaming from a remote server, then you should consider whether you have a fast-enough Internet connection with unlimited data.
-- If the URI of an audio stream contains the letters 'bbc', Volumio will fail to update the stream's playback status and the queue will stop after playing the current stream. This is because the MPD plugin that is supplied with Volumio, and which the Jellyfin plugin utilizes, assumes URIs containing 'bbc' has got to be BBC webradio streams and tries to parse the stream's information in a particular way that would cause it to fail with the Jellyfin streams. ~~A workaround may be possible but not provided since this behavior is caused by a reckless assumption that should be fixed within the MPD plugin.~~ Until Volumio pushes a fix, you can run a script provided by the Jellyfin plugin to resolve this. To run the script, SSH into Volumio and then:
+- If the URI of an audio stream contains the letters 'bbc', Volumio will fail to update the stream's playback status and the queue will stop after playing the current stream. This is because the MPD plugin that is supplied with Volumio, and which the Jellyfin plugin utilizes, assumes URIs containing 'bbc' has got to be BBC webradio streams and tries to parse the stream's information in a particular way that would cause it to fail with the Jellyfin streams. ~~A workaround may be possible but not provided since this behavior is caused by a reckless assumption that should be fixed within the MPD plugin.~~ Until Volumio pushes a fix ([PR submitted and merged](https://github.com/volumio/Volumio2/pull/2162), but not in release as at v2.916), you can run a script provided by the Jellyfin plugin to resolve this. To run the script, SSH into Volumio and then:
 
 ```
 volumio:~$ /data/plugins/music_service/jellyfin/scripts/fix_mpd_bbc
