@@ -24,6 +24,9 @@ You can add multiple servers, and those that are reachable will appear when you 
 
 #### Changelog
 
+0.1.4:
+- [Changed] Clean up install script
+
 0.1.3:
 - [Changed] Minor change to loading of translations
 - [Changed] Update plugin for Volumio 3
