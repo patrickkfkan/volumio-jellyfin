@@ -391,6 +391,14 @@ ControllerJellyfin.prototype.seek = function (position) {
     return this.playController.seek(position);
 }
 
+ControllerJellyfin.prototype.next = function (position) {
+    return this.playController.next();
+}
+
+ControllerJellyfin.prototype.previous = function (position) {
+    return this.playController.previous();
+}
+
 /*ControllerJellyfin.prototype.prefetch = function (trackBlock) {
     return this.playController.prefetch(trackBlock);
 };*/
