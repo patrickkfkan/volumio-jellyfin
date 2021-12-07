@@ -51,6 +51,7 @@
     "JELLYFIN_FAVORITE_ALBUMS": "最爱专辑",
     "JELLYFIN_FAVORITE_SONGS": "最爱的歌曲",
     "JELLYFIN_SEARCH_LIST_TITLE": "{} <i class=\"fa fa-angle-right\" style=\"margin: 0px 10px;\"></i> {}",
+    "JELLYFIN_SEARCH_LIST_TITLE_PLAIN": "Jellyfin: {} - {}",
     "JELLYFIN_SPECIFY_HOST": "必须提供主机网址",
     "JELLYFIN_INVALID_HOST": "主机网址无效",
     "JELLYFIN_SERVER_ADDED": "成功新增伺服器",

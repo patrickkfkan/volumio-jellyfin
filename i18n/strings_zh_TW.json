@@ -51,6 +51,7 @@
     "JELLYFIN_FAVORITE_ALBUMS": "最愛專輯",
     "JELLYFIN_FAVORITE_SONGS": "最愛的歌曲",
     "JELLYFIN_SEARCH_LIST_TITLE": "{} <i class=\"fa fa-angle-right\" style=\"margin: 0px 10px;\"></i> {}",
+    "JELLYFIN_SEARCH_LIST_TITLE_PLAIN": "Jellyfin: {} - {}",
     "JELLYFIN_SPECIFY_HOST": "必須提供主機網址",
     "JELLYFIN_INVALID_HOST": "主機網址無效",
     "JELLYFIN_SERVER_ADDED": "成功新增伺服器",

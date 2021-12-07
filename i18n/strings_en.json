@@ -51,6 +51,7 @@
     "JELLYFIN_FAVORITE_ALBUMS": "Favorite Albums",
     "JELLYFIN_FAVORITE_SONGS": "Favorite Songs",
     "JELLYFIN_SEARCH_LIST_TITLE": "{} <i class=\"fa fa-angle-right\" style=\"margin: 0px 10px;\"></i> {}",
+    "JELLYFIN_SEARCH_LIST_TITLE_PLAIN": "Jellyfin: {} - {}",
     "JELLYFIN_SPECIFY_HOST": "You must specify a host",
     "JELLYFIN_INVALID_HOST": "Invalid host URL",
     "JELLYFIN_SERVER_ADDED": "Server added",
