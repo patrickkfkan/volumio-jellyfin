@@ -34,6 +34,7 @@
     "JELLYFIN_COLLECTION_IN_SECTION_ITEMS": "Collection: Items to Show Per Section",
     "JELLYFIN_MY_MEDIA": "My Media",
     "JELLYFIN_LATEST_IN": "Latest in {}",
+    "JELLYFIN_COLLECTIONS": "Collections",
     "JELLYFIN_ALBUMS": "Albums",
     "JELLYFIN_ALBUMARTISTS": "Album Artists",
     "JELLYFIN_ALBUM_ARTISTS": "Album Artists",
