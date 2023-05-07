@@ -86,7 +86,7 @@
             "onSave": {
                 "type": "controller",
                 "endpoint": "music_service/jellyfin",
-                "method": "saveBrowseSettings"
+                "method": "configSaveBrowseSettings"
             },
             "saveButton": {
                 "label": "TRANSLATE.JELLYFIN_SAVE",
@@ -258,7 +258,7 @@
             "onSave": {
                 "type": "controller",
                 "endpoint": "music_service/jellyfin",
-                "method": "saveMyMediaLibrarySettings"
+                "method": "configSaveMyMediaLibrarySettings"
             },
             "saveButton": {
                 "label": "TRANSLATE.JELLYFIN_SAVE",
