@@ -20,9 +20,14 @@ interface PlaybackInfo {
   lastStatus?: MpdState['status'];
 }
 
+interface LastPlaybackReport {
+  type: ApiReportPlaybackParams['type'];
+  seek: number;
+}
+
 interface MonitoredPlaybacks {
-  current: Required<PlaybackInfo> & { lastReport?: ApiReportPlaybackParams['type'] } | null;
-  pending: Omit<PlaybackInfo, 'lastStatus'> & { lastReport?: ApiReportPlaybackParams['type'] } | null;
+  current: Required<PlaybackInfo> & { lastReport?: LastPlaybackReport } | null;
+  pending: Omit<PlaybackInfo, 'lastStatus'> & { lastReport?: LastPlaybackReport } | null;
 }
 
 interface MpdState {
@@ -331,7 +336,7 @@ export default class PlayController {
   async #handleMpdPlayerEvent() {
 
     const __apiReportPlayback = (playbackInfo: Required<PlaybackInfo> & 
-      { lastReport?: ApiReportPlaybackParams['type'] }, currentStatus: MpdState['status']) => {
+      { lastReport?: LastPlaybackReport }, currentStatus: MpdState['status']) => {
         const reportPayload = {
           song: playbackInfo.song,
           connection: playbackInfo.connection,
@@ -362,10 +367,11 @@ export default class PlayController {
             reportType = 'stop';
         }
         // Avoid multiple reports of same type
-        if (playbackInfo.lastReport === reportType) {
-          return;
+        if (playbackInfo.lastReport?.type === reportType &&
+          (reportType !== 'timeupdate' || playbackInfo.lastReport?.seek === reportPayload.seek)) {
+            return;
         }
-        playbackInfo.lastReport = reportType;
+        playbackInfo.lastReport = { type: reportType, seek: reportPayload.seek };
         return this.#apiReportPlayback({...reportPayload, type: reportType});
       };
 
