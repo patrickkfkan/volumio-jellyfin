@@ -16,7 +16,7 @@ export interface FilterFilterModelConfig {
 
 interface FilterSetEntry {
   i18nKey: string;
-  value: ItemFilter.IsFavorite | ItemFilter.IsPlayed
+  value: ItemFilter.IsFavorite | ItemFilter.IsPlayed | ItemFilter.IsUnplayed
 }
 
 const FILTER_SETS: Record<FilterFilterItemType, FilterSetEntry[]> = {
@@ -32,7 +32,7 @@ const FILTER_SETS: Record<FilterFilterItemType, FilterSetEntry[]> = {
   [EntityType.Song]: [
     { i18nKey: 'JELLYFIN_FAVORITES', value: ItemFilter.IsFavorite },
     { i18nKey: 'JELLYFIN_PLAYED', value: ItemFilter.IsPlayed },
-    { i18nKey: 'JELLYFIN_UNPLAYED', value: ItemFilter.IsPlayed }
+    { i18nKey: 'JELLYFIN_UNPLAYED', value: ItemFilter.IsUnplayed }
   ]
 };
 
