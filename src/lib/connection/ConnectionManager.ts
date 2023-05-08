@@ -103,18 +103,33 @@ export default class ConnectionManager extends EventEmitter {
         }
       }
       // We can't use the same device ID to login multiple users simultaneously 
-      // On same Jellyfin server. Doing so will log out the previous users. So
-      // We have to create new SDK instance with new device ID.
+      // On same Jellyfin server. Doing so will log out the previous users.
+      // Before we generate a new device ID, check if we have cached one for the user.
+      // By reusing previously-assigned ID, we avoid the Jellyfin server registering multiple
+      // Sessions for the user - this can happen when the plugin is restarted within
+      // A short timeframe and the session before restart has not yet been marked stale.
+      const cachedDeviceIds = jellyfin.getConfigValue<Record<ServerConnection['id'], string>>('connectionDeviceIds', {}, true);
+      const connectionId = `${username}@${server.id}`;
+      let userDeviceId = cachedDeviceIds[connectionId];
+      if (!userDeviceId) {
+        userDeviceId =  uuidv4();
+        cachedDeviceIds[connectionId] = userDeviceId;
+        jellyfin.setConfigValue('connectionDeviceIds', cachedDeviceIds, true);
+        jellyfin.getLogger().info(`[jellyfin-conn] Generated new device Id for ${username}@${server.name}: ${userDeviceId}`);
+      }
+      else {
+        jellyfin.getLogger().info(`[jellyfin-conn] Using previously assigned device Id for ${username}@${server.name}: ${userDeviceId}`);
+      }
       const sdk = new JellyfinSdk({
         clientInfo: this.#sdkInitInfo.clientInfo,
         deviceInfo: {
           ...this.#sdkInitInfo.deviceInfo,
-          id: uuidv4()
+          id: userDeviceId
         }
       });
 
       const newConnection = {
-        id: `${username}@${server.id}`,
+        id: connectionId,
         username,
         server,
         api: sdk.createApi(server.connectionUrl)
