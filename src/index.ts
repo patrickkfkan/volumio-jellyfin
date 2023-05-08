@@ -376,6 +376,7 @@ class ControllerJellyfin {
 
     this.#browseController = null;
     this.#searchController = null;
+    this.#playController?.dispose();
     this.#playController = null;
 
     if (this.#connectionManager) {

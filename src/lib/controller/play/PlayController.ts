@@ -11,15 +11,61 @@ import jellyfin from '../../JellyfinContext';
 import Model, { ModelType } from '../../model';
 import { ExplodedTrackInfo } from '../browse/view-handlers/Explodable';
 import ServerHelper from '../../util/ServerHelper';
+import { kewToJSPromise } from '../../util';
+
+interface PlaybackInfo {
+  song: Song;
+  connection: ServerConnection;
+  streamUrl: string;
+  lastStatus?: MpdState['status'];
+}
+
+interface MonitoredPlaybacks {
+  current: Required<PlaybackInfo> & { lastReport?: ApiReportPlaybackParams['type'] } | null;
+  pending: Omit<PlaybackInfo, 'lastStatus'> & { lastReport?: ApiReportPlaybackParams['type'] } | null;
+}
+
+interface MpdState {
+  status: 'play' | 'stop' | 'pause';
+  seek: number;
+  uri: string;
+}
+
+interface ApiReportPlaybackParams {
+  type: 'start' | 'stop' | 'pause' | 'unpause' | 'timeupdate';
+  song: Song;
+  connection: ServerConnection;
+  seek: number;  // Milliseconds
+}
 
 export default class PlayController {
 
   #mpdPlugin: any;
   #connectionManager: ConnectionManager;
+  #mpdPlayerStateListener: (() => void) | null;
+  #monitoredPlaybacks: MonitoredPlaybacks;
 
   constructor(connectionManager: ConnectionManager) {
     this.#mpdPlugin = jellyfin.getMpdPlugin();
     this.#connectionManager = connectionManager;
+    this.#mpdPlayerStateListener = null;
+    this.#monitoredPlaybacks = { current: null, pending: null };
+  }
+
+  #addMpdPlayerStateListener() {
+    if (this.#mpdPlayerStateListener) {
+      return;
+    }
+    this.#mpdPlayerStateListener = this.#handleMpdPlayerEvent.bind(this);
+    this.#mpdPlugin.clientMpd.on('system-player', this.#mpdPlayerStateListener);
+  }
+
+  #removeMpdPlayerStateListener() {
+    if (!this.#mpdPlayerStateListener) {
+      return;
+    }
+    this.#mpdPlugin.clientMpd.removeListener('system-player', this.#mpdPlayerStateListener);
+    this.#mpdPlayerStateListener = null;
   }
 
   /**
@@ -31,6 +77,8 @@ export default class PlayController {
 
     const {song, connection} = await this.getSongFromTrack(track);
     const streamUrl = this.#getStreamUrl(song, connection);
+    this.#monitoredPlaybacks.pending = { song, connection, streamUrl };
+    this.#addMpdPlayerStateListener();
     await this.#doPlay(streamUrl, track);
     await this.#markPlayed(song, connection);
     jellyfin.getStateMachine().trackType = track.trackType;
@@ -70,6 +118,11 @@ export default class PlayController {
   previous() {
     jellyfin.getStateMachine().setConsumeUpdateService(undefined);
     return jellyfin.getStateMachine().previous();
+  }
+
+  dispose() {
+    this.#removeMpdPlayerStateListener();
+    this.#monitoredPlaybacks = { current: null, pending: null };
   }
 
   /*Prefetch(trackBlock) {
@@ -159,12 +212,12 @@ export default class PlayController {
   }
 
   async #markPlayed(song: Song, connection: ServerConnection): Promise<void> {
-    const playstateAPi = getPlaystateApi(connection.api);
+    const playstateApi = getPlaystateApi(connection.api);
     try {
       if (!connection.auth?.User?.Id) {
         throw Error('No auth');
       }
-      await playstateAPi.markPlayedItem({
+      await playstateApi.markPlayedItem({
         userId: connection.auth.User.Id,
         itemId: song.id,
         datePlayed: (new Date()).toUTCString()
@@ -212,5 +265,133 @@ export default class PlayController {
       song,
       connection
     };
+  }
+
+  #millisecondsToTicks(seconds: number) {
+    return seconds * 10000;
+  }
+
+  async #apiReportPlayback(params: ApiReportPlaybackParams): Promise<void> {
+    const { type, song, connection, seek } = params;
+    const positionTicks = this.#millisecondsToTicks(seek);
+    try {
+      if (!connection.auth?.User?.Id) {
+        throw Error('No auth');
+      }
+      const playstateApi = getPlaystateApi(connection.api);
+      if (type === 'start') {
+        await playstateApi.reportPlaybackStart({
+          playbackStartInfo: {
+            ItemId: song.id,
+            PositionTicks: positionTicks
+          }
+        });
+      }
+      else if (type === 'stop') {
+        await playstateApi.reportPlaybackStopped({
+          playbackStopInfo: {
+            ItemId: song.id,
+            PositionTicks: positionTicks
+          }
+        });
+      }
+      else if (type === 'pause') {
+        await playstateApi.reportPlaybackProgress({
+          playbackProgressInfo: {
+            ItemId: song.id,
+            IsPaused: true,
+            PositionTicks: positionTicks
+          }
+        });
+      }
+      else if (type === 'unpause') {
+        await playstateApi.reportPlaybackProgress({
+          playbackProgressInfo: {
+            ItemId: song.id,
+            IsPaused: false,
+            PositionTicks: positionTicks
+          }
+        });
+      }
+      else {  // type: timeupdate
+        await playstateApi.reportPlaybackProgress({
+          playbackProgressInfo: {
+            ItemId: song.id,
+            PositionTicks: positionTicks
+          }
+        });
+      }
+      jellyfin.getLogger().info(`[jellyfin-play]: Reported '${type}' for song: ${song.name}`)
+    }
+    catch (error: any) {
+      jellyfin.getLogger().error(`[jellyfin-play]: Failed to report '${type}' for song '${song.name}': ${error.message}`);
+    }
+  }
+
+  async #handleMpdPlayerEvent() {
+
+    const __apiReportPlayback = (playbackInfo: Required<PlaybackInfo> & 
+      { lastReport?: ApiReportPlaybackParams['type'] }, currentStatus: MpdState['status']) => {
+        const reportPayload = {
+          song: playbackInfo.song,
+          connection: playbackInfo.connection,
+          seek: mpdState.seek
+        };
+        const lastStatus = playbackInfo.lastStatus;
+        playbackInfo.lastStatus = currentStatus;
+        let reportType: ApiReportPlaybackParams['type'];
+        switch (currentStatus) {
+          case 'pause':
+            reportType = 'pause';
+            break;
+
+          case 'play':
+            if (lastStatus === 'pause') {
+              reportType = 'unpause';
+            }
+            else if (lastStatus === 'play') {
+              reportType = 'timeupdate';
+            }
+            else {  // lastStatus: stop
+              reportType = 'start'
+            }
+            break;
+
+          case 'stop':
+          default:
+            reportType = 'stop';
+        }
+        // Avoid multiple reports of same type
+        if (playbackInfo.lastReport === reportType) {
+          return;
+        }
+        playbackInfo.lastReport = reportType;
+        return this.#apiReportPlayback({...reportPayload, type: reportType});
+      };
+
+    const mpdState: MpdState = await kewToJSPromise(this.#mpdPlugin.getState());
+    // Current stream has not changed
+    if (mpdState.uri === this.#monitoredPlaybacks.current?.streamUrl) {
+      await __apiReportPlayback(this.#monitoredPlaybacks.current, mpdState.status);
+    }
+    // Stream previously fetched by the plugin and pending playback is now played
+    else if (mpdState.uri === this.#monitoredPlaybacks.pending?.streamUrl) {
+      const pending = this.#monitoredPlaybacks.pending;
+      if (this.#monitoredPlaybacks.current && this.#monitoredPlaybacks.current.lastStatus !== 'stop') {
+        await __apiReportPlayback(this.#monitoredPlaybacks.current, 'stop');
+      }
+      this.#monitoredPlaybacks.current = {
+        ...pending,
+        lastStatus: 'stop'
+      };
+      this.#monitoredPlaybacks.pending = null;
+      await __apiReportPlayback(this.#monitoredPlaybacks.current, mpdState.status);
+    }
+    // Current stream has changed to one that was not loaded by the plugin
+    else {
+      if (this.#monitoredPlaybacks.current && this.#monitoredPlaybacks.current.lastStatus !== 'stop') {
+        await __apiReportPlayback(this.#monitoredPlaybacks.current, 'stop');
+      }
+    }
   }
 }
