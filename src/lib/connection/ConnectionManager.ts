@@ -19,30 +19,46 @@ export default class ConnectionManager extends EventEmitter {
 
   #sdkInitInfo: JellyfinSdkInitInfo;
   #connections: ServerConnection[];
+  #authenticatingPromises: Record<ServerConnection['id'], Promise<ServerConnection>>;
 
   constructor(sdkInitInfo: JellyfinSdkInitInfo) {
     super();
     this.#sdkInitInfo = sdkInitInfo;
     this.#connections = [];
+    this.#authenticatingPromises = {};
   }
 
   async getAuthenticatedConnection(server: Server, username: string, passwordFetch: PasswordFetch): Promise<ServerConnection> {
     const conn = this.#getOrCreateConnection(server, username);
-    if (!conn.auth) {
-      jellyfin.toast('info', jellyfin.getI18n('JELLYFIN_LOGGING_INTO', server.name));
-      try {
-        const authResult = await conn.api.authenticateUserByName(username, passwordFetch(server, username));
-        conn.auth = authResult.data;
-        jellyfin.toast('success', jellyfin.getI18n('JELLYFIN_LOGIN_SUCCESS', server.name));
-        jellyfin.getLogger().info(`[jellyfin-conn] Login successful: ${username}@${server.name}`);
-
-      }
-      catch (error: any) {
-        jellyfin.toast('error', jellyfin.getI18n('JELLYFIN_AUTH_FAILED'));
-        jellyfin.getLogger().error(`[jellyfin-conn] Login error: ${username}@${server.name}: ${error.message}, Server info: `, server);
-      }
+    if (conn.auth) {
+      return conn;
     }
-    return conn;
+    
+    if (Reflect.has(this.#authenticatingPromises, conn.id)) {
+      jellyfin.getLogger().info('[jellyfin-conn] Returning existing auth promise');
+      return this.#authenticatingPromises[conn.id];
+    }
+
+    this.#authenticatingPromises[conn.id] = this.#authenticateConnection(conn, passwordFetch)
+      .finally(() => { delete this.#authenticatingPromises[conn.id]; });
+    
+    return this.#authenticatingPromises[conn.id];
+  }
+
+  async #authenticateConnection(connection: ServerConnection, passwordFetch: PasswordFetch): Promise<ServerConnection> {
+    const {server, username} = connection;
+    jellyfin.toast('info', jellyfin.getI18n('JELLYFIN_LOGGING_INTO', server.name));
+    try {
+      const authResult = await connection.api.authenticateUserByName(username, passwordFetch(server, username));
+      connection.auth = authResult.data;
+      jellyfin.toast('success', jellyfin.getI18n('JELLYFIN_LOGIN_SUCCESS', server.name));
+      jellyfin.getLogger().info(`[jellyfin-conn] Login successful: ${username}@${server.name}`);
+    }
+    catch (error: any) {
+      jellyfin.toast('error', jellyfin.getI18n('JELLYFIN_AUTH_FAILED'));
+      jellyfin.getLogger().error(`[jellyfin-conn] Login error: ${username}@${server.name}: ${error.message}, Server info: `, server);
+    }
+    return connection;
   }
 
   async logoutAll(): Promise<void> {
@@ -74,7 +90,7 @@ export default class ConnectionManager extends EventEmitter {
   }
 
   #getOrCreateConnection(server: Server, username: string): ServerConnection {
-    const conn = this.findAuthenticatedConnection(server, username);
+    const conn = this.findConnection(server, username);
     if (!conn) {
       if (!username) { // For legacy URIs without multi-user support
         const serverConfEntries = ServerHelper.getServersFromConfig();
@@ -109,7 +125,8 @@ export default class ConnectionManager extends EventEmitter {
     return conn;
   }
 
-  findAuthenticatedConnection(server: Server, username: string): ServerConnection | null {
-    return this.#connections.find((c) => c.server.id === server.id && c.auth?.User?.Name === username) || null;
+  findConnection(server: Server, username: string, authenticated = false): ServerConnection | null {
+    return this.#connections.find(
+      (c) => c.server.id === server.id && (authenticated ? c.auth?.User?.Name : c.username) === username) || null;
   }
 }

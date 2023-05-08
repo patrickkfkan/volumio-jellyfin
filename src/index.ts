@@ -186,7 +186,7 @@ class ControllerJellyfin {
 
       const removedServer = this.#serverPoller?.findOnlineServer(removed.url);
       if (removedServer) {
-        const connection = this.#connectionManager?.findAuthenticatedConnection(removedServer, removed.username);
+        const connection = this.#connectionManager?.findConnection(removedServer, removed.username, true);
         if (connection) {
           await this.#connectionManager?.logout(connection);
         }
