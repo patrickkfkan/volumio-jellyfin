@@ -1,13 +1,23 @@
+export enum FilterType {
+  AZ = 'AZ',
+  Genre = 'Genre',
+  Year = 'Year',
+  Filter = 'Filter',
+  Sort = 'Sort'
+}
+
 export interface Filter {
-  type: string,
+  type: FilterType,
   title?: string,
   placeholder: string,
   field?: string,
   icon?: string,
   resettable?: boolean,
   options?: FilterOption[],
-  subfilters?: Filter[]
+  subfilters?: Subfilter[]
 }
+
+export type Subfilter = Omit<Filter, 'type'>;
 
 export interface FilterOption {
   name: string,

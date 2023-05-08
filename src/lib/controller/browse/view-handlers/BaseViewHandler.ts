@@ -35,6 +35,11 @@ import { objectAssignIfExists } from '../../../util';
 import UserViewRenderer from './renderer/UserViewRenderer';
 import AlbumArtHandler from '../../../util/AlbumArtHandler';
 import UI from '../../../util/UI';
+import { CollectionView } from './CollectionViewHandler';
+import { CollectionsView } from './CollectionsViewHandler';
+import { LibraryView } from './LibraryViewHandler';
+import { FolderView } from './FolderViewHandler';
+import { PlaylistView } from './PlaylistViewHandler';
 
 interface PageTitleCrumb {
   uri?: string,
@@ -227,9 +232,8 @@ export default class BaseViewHandler<V extends View> implements ViewHandler {
     }
 
     if (props.search) {
-      const query = decodeURIComponent(props.search);
       // Safe value
-      params.search = query.replace(/"/g, '\\"');
+      params.search = props.search.replace(/"/g, '\\"');
     }
 
     return params;
@@ -316,24 +320,35 @@ export default class BaseViewHandler<V extends View> implements ViewHandler {
       const pv = allViews[i];
       if (!processedViews.includes(pv.name)) {
         if (pv.name === 'collections') {
+          const collectionsView: CollectionsView = {
+            name: 'collections',
+            parentId: pv.parentId
+          }
           crumbs.push({
-            uri: `collections@parentId=${pv.parentId}`,
+            uri: ViewHelper.constructUriSegmentFromView(collectionsView),
             text: jellyfin.getI18n('JELLYFIN_COLLECTIONS')
           });
         }
         else if (pv.name === 'collection' && pv.parentId) {
+          const collectionView: CollectionView = {
+            name: 'collection',
+            parentId: pv.parentId
+          };
           const model = this.getModel(ModelType.Collection);
           const collection = await model.getCollection(pv.parentId);
           if (collection) {
             crumbs.push({
-              uri: `collection@parentId=${pv.parentId}`,
+              uri: ViewHelper.constructUriSegmentFromView(collectionView),
               text: collection?.name
             });
           }
         }
         else if (pv.name === 'playlists') {
+          const playlistView: PlaylistView = {
+            name: 'playlists'
+          };
           crumbs.push({
-            uri: 'playlists',
+            uri: ViewHelper.constructUriSegmentFromView(playlistView),
             text: jellyfin.getI18n('JELLYFIN_PLAYLISTS')
           });
         }
@@ -341,18 +356,26 @@ export default class BaseViewHandler<V extends View> implements ViewHandler {
           const model = this.getModel(ModelType.UserView);
           const userView = await model.getUserView(pv.parentId);
           if (userView) {
+            const libraryView: LibraryView = {
+              name: 'library',
+              parentId: pv.parentId
+            };
             crumbs.push({
-              uri: `library@parentId=${pv.parentId}`,
+              uri: ViewHelper.constructUriSegmentFromView(libraryView),
               text: userView.name
             });
           }
         }
         else if (pv.name === 'folder' && pv.parentId) {
+          const folderView: FolderView = {
+            name: 'folder',
+            parentId: pv.parentId
+          }
           const model = this.getModel(ModelType.Folder);
           const folder = await model.getFolder(pv.parentId);
           if (folder) {
             crumbs.push({
-              uri: `folder@parentId=${pv.parentId}`,
+              uri: ViewHelper.constructUriSegmentFromView(folderView),
               text: folder.name
             });
           }
@@ -401,5 +424,4 @@ export default class BaseViewHandler<V extends View> implements ViewHandler {
 
     return pageContents;
   }
-
 }

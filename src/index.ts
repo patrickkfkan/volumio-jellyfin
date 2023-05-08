@@ -16,6 +16,9 @@ import PlayController from './lib/controller/play/PlayController';
 import { ExplodedTrackInfo } from './lib/controller/browse/view-handlers/Explodable';
 import { jsPromiseToKew } from './lib/util';
 import ServerHelper from './lib/util/ServerHelper';
+import { SongView } from './lib/controller/browse/view-handlers/SongViewHandler';
+import ViewHelper from './lib/controller/browse/view-handlers/ViewHelper';
+import { AlbumView } from './lib/controller/browse/view-handlers/AlbumViewHandler';
 
 interface GotoParams extends ExplodedTrackInfo {
   type: 'album' | 'artist';
@@ -465,13 +468,21 @@ class ControllerJellyfin {
       const { song, connection } = await this.#playController.getSongFromTrack(data);
       if (data.type === 'album') {
         if (song.album?.id) {
-          return jsPromiseToKew(this.#browseController.browseUri(`jellyfin/${connection.id}/songs@albumId=${song.album.id}`));
+          const songView: SongView = {
+            name: 'songs',
+            albumId: song.album.id
+          };
+          return jsPromiseToKew(this.#browseController.browseUri(`jellyfin/${connection.id}/${ViewHelper.constructUriSegmentFromView(songView)}`));
         }
         throw Error('Song is missing album info');
       }
       else if (data.type === 'artist') {
         if (song.artists?.[0]?.id) {
-          return jsPromiseToKew(this.#browseController.browseUri(`jellyfin/${connection.id}/albums@artistId=${song.artists[0].id}`));
+          const albumView: AlbumView = {
+            name: 'albums',
+            artistId: song.artists[0].id
+          }
+          return jsPromiseToKew(this.#browseController.browseUri(`jellyfin/${connection.id}/${ViewHelper.constructUriSegmentFromView(albumView)}`));
         }
         throw Error('Song is missing artist info');
       }

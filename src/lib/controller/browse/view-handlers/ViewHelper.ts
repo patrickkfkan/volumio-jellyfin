@@ -1,10 +1,11 @@
 import { EntityType } from '../../../entities';
 import { AZFilterModelConfig } from '../../../model/filter/AZFilterModel';
 import { FilterFilterModelConfig, FilterFilterItemType } from '../../../model/filter/FilterFilterModel';
+import { FilterType } from '../../../model/filter/FilterModel';
 import { GenreFilterModelConfig } from '../../../model/filter/GenreFilterModel';
 import { SortFilterItemType, SortFilterModelConfig } from '../../../model/filter/SortFilterModel';
 import { YearFilterItemType, YearFilterModelConfig } from '../../../model/filter/YearFilterModel';
-import { FilterType } from './FilterableViewHandler';
+import ServerHelper from '../../../util/ServerHelper';
 import View from './View';
 
 type FilterModelConfig = AZFilterModelConfig | FilterFilterModelConfig |
@@ -36,12 +37,12 @@ export default class ViewHelper {
         };
         const segmentParts = segment.split('@');
         if (segmentParts.length === 2) {
-          username = segmentParts[0];
-          serverId = segmentParts[1];
+          username = decodeURIComponent(segmentParts[0]);
+          serverId = decodeURIComponent(segmentParts[1]);
         }
         else {
           username = '';
-          serverId = segmentParts[0];
+          serverId = decodeURIComponent(segmentParts[0]);
         }
         view.serverId = serverId;
         view.username = username;
@@ -57,13 +58,13 @@ export default class ViewHelper {
     return result;
   }
 
-  static constructUriSegmentFromView(view: View) {
+  static constructUriSegmentFromView<V extends View>(view: V) {
     let segment: string;
     if (view.name === 'root') {
       segment = 'jellyfin';
     }
     else if (view.name === 'userViews' && view.serverId && view.username) {
-      segment = `${view.username}@${view.serverId}`;
+      segment = ServerHelper.generateConnectionId(view.username, view.serverId);
     }
     else {
       segment = view.name;
@@ -71,7 +72,7 @@ export default class ViewHelper {
 
     const skip = [ 'name', 'startIndex', 'serverId', 'username', 'saveFilter', 'noExplode' ];
     Object.keys(view).filter((key) => !skip.includes(key)).forEach((key) => {
-      segment += `@${key}=${view[key]}`;
+      segment += `@${key}=${encodeURIComponent(view[key])}`;
     });
 
     if (view.startIndex) {
@@ -98,7 +99,7 @@ export default class ViewHelper {
           result[key] = parseInt(value, 10);
         }
         else {
-          result[key] = value;
+          result[key] = decodeURIComponent(value);
         }
       }
     });

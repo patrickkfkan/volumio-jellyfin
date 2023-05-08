@@ -1,6 +1,6 @@
 import { EntityType } from '../../../entities';
 import { ModelType } from '../../../model';
-import { Filter, FilterSelection } from '../../../model/filter/FilterModel';
+import { Filter, FilterSelection, FilterType, Subfilter } from '../../../model/filter/FilterModel';
 import BaseViewHandler from './BaseViewHandler';
 import View from './View';
 import jellyfin from '../../../JellyfinContext';
@@ -8,14 +8,7 @@ import { RenderedList } from './ViewHandler';
 import { RenderedListItem } from './renderer/BaseRenderer';
 import ViewHelper from './ViewHelper';
 import { GetItemsParams } from '../../../model/BaseModel';
-
-export enum FilterType {
-  AZ = 'AZ',
-  Genre = 'Genre',
-  Year = 'Year',
-  Filter = 'Filter',
-  Sort = 'Sort'
-}
+import { FilterSelectionView } from './FilterSelectionViewHandler';
 
 export interface FilterableViewConfig {
   showFilters: boolean;
@@ -97,12 +90,35 @@ export default abstract class FilterableViewHandler<V extends View> extends Base
           title = this.#getFilterListItemText(filter);
         }
 
+        let filterViewName: FilterSelectionView['name'];
+        switch (filter.type) {
+          case FilterType.AZ:
+            filterViewName = 'filter.az';
+            break;
+          case FilterType.Filter:
+            filterViewName = 'filter.filter';
+            break;
+          case FilterType.Genre:
+            filterViewName = 'filter.genre';
+            break;
+          case FilterType.Sort:
+            filterViewName = 'filter.sort';
+            break;
+          case FilterType.Year:
+          default:
+            filterViewName = 'filter.year';
+        }
+        const filterSelectionView: FilterSelectionView = {
+          name: filterViewName,
+          filterView: JSON.stringify(filterView)
+        };
+
         result.push({
           service: 'jellyfin',
           type: 'jellyfin-filter',
           title,
           icon: filter.icon,
-          uri: `${this.uri}/filter.${filter.type}@filterView=${encodeURIComponent(JSON.stringify(filterView))}`
+          uri: `${this.uri}/${ViewHelper.constructUriSegmentFromView(filterSelectionView)}`
         });
       }
 
@@ -149,7 +165,6 @@ export default abstract class FilterableViewHandler<V extends View> extends Base
         cleanDefaultSelection[field] = value;
       }
       else if (Array.isArray(value)) {
-        // TODO: encodeURICOmponent
         cleanDefaultSelection[field] = value.join(',');
       }
     }
@@ -209,7 +224,7 @@ export default abstract class FilterableViewHandler<V extends View> extends Base
     return {};
   }
 
-  #getFilterListItemText(filter: Filter): string {
+  #getFilterListItemText(filter: Filter | Subfilter): string {
     const selected = filter.options?.filter((o) => o.selected) || [];
     if (selected.length > 0) {
       return selected.map((o) => o.name).join(', ');
@@ -222,7 +237,7 @@ export default abstract class FilterableViewHandler<V extends View> extends Base
     const remember = jellyfin.getConfigValue('rememberFilters', true);
     const view = this.currentView;
     if (remember && view.saveFilter && this.serverConnection) {
-      const saveFilterData = JSON.parse(decodeURIComponent(view.saveFilter));
+      const saveFilterData = JSON.parse(view.saveFilter);
       const savedFilters = jellyfin.getConfigValue<FilterSelection | null>('savedFilters', null, true) || {};
       const fullKey = `${this.serverConnection.id}.${key}`;
       if (!savedFilters[fullKey]) {

@@ -1,6 +1,9 @@
 import BaseRenderer, { RenderedListItem } from './BaseRenderer';
 import Folder, { FolderType } from '../../../../entities/Folder';
 import { EntityType } from '../../../../entities';
+import ViewHelper from '../ViewHelper';
+import { CollectionsView } from '../CollectionsViewHandler';
+import { FolderView } from '../FolderViewHandler';
 
 export default class FolderRenderer extends BaseRenderer<Folder> {
 
@@ -17,13 +20,16 @@ export default class FolderRenderer extends BaseRenderer<Folder> {
       title = data.name;
     }
 
-    const targetView = data.folderType === FolderType.Collections ? 'collections' : 'folder';
+    const targetView: CollectionsView | FolderView = {
+      name: data.folderType === FolderType.Collections ? 'collections' : 'folder',
+      parentId: data.id
+    };
 
     return {
       service: 'jellyfin',
       type: 'streaming-category',
       title,
-      uri: `${this.uri}/${targetView}@parentId=${encodeURIComponent(data.id)}`,
+      uri: `${this.uri}/${ViewHelper.constructUriSegmentFromView(targetView)}`,
       albumart: this.getAlbumArt(data)
     };
   }

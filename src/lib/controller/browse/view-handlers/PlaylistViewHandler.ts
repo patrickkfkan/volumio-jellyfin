@@ -5,7 +5,9 @@ import { RenderedListItem } from './renderer/BaseRenderer';
 import View from './View';
 import { RenderedList, RenderedPage, RenderedPageContents } from './ViewHandler';
 
-export type PlaylistView = View
+export interface PlaylistView extends View {
+  name: 'playlists';
+}
 
 export default class PlaylistViewHandler extends BaseViewHandler<PlaylistView> {
 

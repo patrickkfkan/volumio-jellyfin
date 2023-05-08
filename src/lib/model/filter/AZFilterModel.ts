@@ -1,6 +1,6 @@
 import jellyfin from '../../JellyfinContext';
 import BaseModel from '../BaseModel';
-import FilterModel, { Filter } from './FilterModel';
+import FilterModel, { Filter, FilterType } from './FilterModel';
 
 const AZ = [ 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' ];
 
@@ -20,7 +20,7 @@ export default class AZFilterModel extends BaseModel implements FilterModel {
     }));
 
     return {
-      type: 'az',
+      type: FilterType.AZ,
       title: jellyfin.getI18n('JELLYFIN_FILTER_AZ_TITLE'),
       placeholder: jellyfin.getI18n('JELLYFIN_FILTER_AZ_PLACEHOLDER'),
       field: 'nameStartsWith',

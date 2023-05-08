@@ -1,7 +1,7 @@
 import jellyfin from '../../JellyfinContext';
 import BaseModel from '../BaseModel';
 import GenreModel from '../GenreModel';
-import FilterModel, { Filter, FilterOption } from './FilterModel';
+import FilterModel, { Filter, FilterOption, FilterType } from './FilterModel';
 
 export interface GenreFilterModelConfig {
   parentId: string;
@@ -42,7 +42,7 @@ export default class GenreFilterModel extends BaseModel implements FilterModel {
     }, []);
 
     return {
-      type: 'genre',
+      type: FilterType.Genre,
       title: jellyfin.getI18n('JELLYFIN_FILTER_GENRE_TITLE'),
       placeholder: jellyfin.getI18n('JELLYFIN_FILTER_GENRE_PLACEHOLDER'),
       field: 'genreIds',

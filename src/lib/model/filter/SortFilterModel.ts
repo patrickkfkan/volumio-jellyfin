@@ -2,7 +2,7 @@ import { SortOrder } from '@jellyfin/sdk/lib/generated-client/models';
 import { EntityType } from '../../entities';
 import jellyfin from '../../JellyfinContext';
 import BaseModel from '../BaseModel';
-import FilterModel, { Filter } from './FilterModel';
+import FilterModel, { Filter, FilterType, Subfilter } from './FilterModel';
 
 export type SortFilterItemType = EntityType.Album | EntityType.Song | EntityType.Folder;
 
@@ -81,7 +81,7 @@ export default class SortFilterModel extends BaseModel implements FilterModel {
     const sortOrderFilter = this.#getSortOrderFilter(config);
 
     return {
-      type: 'sort',
+      type: FilterType.Sort,
       subfilters: [
         sortByFilter,
         sortOrderFilter
@@ -91,7 +91,7 @@ export default class SortFilterModel extends BaseModel implements FilterModel {
     };
   }
 
-  async #getSortByFilter(config: SortFilterModelConfig): Promise<Filter> {
+  async #getSortByFilter(config: SortFilterModelConfig): Promise<Subfilter> {
     const defaultSortBy = (await this.getDefaultSelection(config.itemType)).sortBy;
     const selectedSortByValue = config.initialSelection?.sortBy || defaultSortBy;
 
@@ -102,7 +102,6 @@ export default class SortFilterModel extends BaseModel implements FilterModel {
     }));
 
     return {
-      type: 'sortby',
       title: jellyfin.getI18n('JELLYFIN_FILTER_SORT_BY_TITLE'),
       field: 'sortBy',
       icon: 'fa fa-sort',
@@ -112,7 +111,7 @@ export default class SortFilterModel extends BaseModel implements FilterModel {
     };
   }
 
-  #getSortOrderFilter(config: SortFilterModelConfig): Filter {
+  #getSortOrderFilter(config: SortFilterModelConfig): Subfilter {
     const selectedSortOrderValue = config.initialSelection?.sortOrder || SORT_ORDERS[0].value;
 
     const options = SORT_ORDERS.map((sortOrder) => ({
@@ -122,7 +121,6 @@ export default class SortFilterModel extends BaseModel implements FilterModel {
     }));
 
     return {
-      type: 'sortOrder',
       title: jellyfin.getI18n('JELLYFIN_FILTER_SORT_ORDER_TITLE'),
       field: 'sortOrder',
       icon: 'fa fa-sort',

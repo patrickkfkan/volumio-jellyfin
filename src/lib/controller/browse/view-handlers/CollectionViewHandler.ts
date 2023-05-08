@@ -6,8 +6,10 @@ import { EntityType } from '../../../entities';
 import { RenderedList, RenderedPage, RenderedPageContents } from './ViewHandler';
 import { GetCollectionItemsParams } from '../../../model/CollectionModel';
 import { RenderedListItem } from './renderer/BaseRenderer';
+import ViewHelper from './ViewHelper';
 
 export interface CollectionView extends View {
+  name: 'collection';
   parentId: string;
   itemType?: 'album' | 'artist' | 'playlist' | 'song';
 }
@@ -47,7 +49,7 @@ export default class CollectionViewHandler extends BaseViewHandler<CollectionVie
     };
   }
 
-  async #getList(collectionId: string, itemType: string, baseUri: string, inSection = false): Promise<RenderedList> {
+  async #getList(collectionId: string, itemType: Required<CollectionView>['itemType'], baseUri: string, inSection = false): Promise<RenderedList> {
     let entityType: EntityType;
     switch (itemType) {
       case 'album':
@@ -72,7 +74,18 @@ export default class CollectionViewHandler extends BaseViewHandler<CollectionVie
       modelQueryParams.limit = jellyfin.getConfigValue('collectionInSectionItems', 11);
     }
 
-    const moreUri = inSection ? `${baseUri}/collection@parentId=${collectionId}@itemType=${itemType}` : this.constructNextUri();
+    let moreUri;
+    if (inSection) {
+      const collectionView: CollectionView = {
+        name: 'collection',
+        parentId: collectionId,
+        itemType
+      };
+      moreUri = `${baseUri}/${ViewHelper.constructUriSegmentFromView(collectionView)}`;
+    }
+    else {
+      moreUri = this.constructNextUri();
+    }
     const title = jellyfin.getI18n(`JELLYFIN_${itemType.toUpperCase()}S`);
 
     const model = this.getModel(ModelType.Collection);

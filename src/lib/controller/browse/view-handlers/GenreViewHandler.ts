@@ -6,6 +6,7 @@ import View from './View';
 import { RenderedList, RenderedPage, RenderedPageContents } from './ViewHandler';
 
 export interface GenreView extends View {
+  name: 'genres';
   parentId: string;
 }
 

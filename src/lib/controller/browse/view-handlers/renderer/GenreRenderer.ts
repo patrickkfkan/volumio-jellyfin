@@ -1,16 +1,23 @@
 import Genre from '../../../../entities/Genre';
 import BaseRenderer, { RenderedHeader, RenderedListItem } from './BaseRenderer';
 import jellyfin from '../../../../JellyfinContext';
+import { AlbumView } from '../AlbumViewHandler';
+import ViewHelper from '../ViewHelper';
 
 export default class GenreRenderer extends BaseRenderer<Genre> {
 
   renderToListItem(data: Genre): RenderedListItem | null {
+    const albumView: AlbumView = {
+      name: 'albums',
+      parentId: this.currentView.parentId,
+      genreId: data.id
+    };
     return {
       'service': 'jellyfin',
       'type': 'folder',
       'title': data.name,
       'albumart': this.getAlbumArt(data),
-      'uri': `${this.uri}/albums@parentId=${this.currentView.parentId}@genreId=${encodeURIComponent(data.id)}`
+      'uri': `${this.uri}/${ViewHelper.constructUriSegmentFromView(albumView)}`
     };
   }
 

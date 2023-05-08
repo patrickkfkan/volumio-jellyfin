@@ -2,7 +2,7 @@ import { ItemFilter } from '@jellyfin/sdk/lib/generated-client/models';
 import { EntityType } from '../../entities';
 import jellyfin from '../../JellyfinContext';
 import BaseModel from '../BaseModel';
-import FilterModel, { Filter, FilterOption } from './FilterModel';
+import FilterModel, { Filter, FilterOption, FilterType } from './FilterModel';
 
 export type FilterFilterItemType = EntityType.Album | EntityType.Artist |
     EntityType.AlbumArtist | EntityType.Song;
@@ -64,7 +64,7 @@ export default class FilterFilterModel extends BaseModel implements FilterModel 
     }, []);
 
     return {
-      type: 'filter',
+      type: FilterType.Filter,
       title: jellyfin.getI18n('JELLYFIN_FILTER_FILTER_TITLE'),
       placeholder: jellyfin.getI18n('JELLYFIN_FILTER_FILTER_PLACEHOLDER'),
       field: 'filters',

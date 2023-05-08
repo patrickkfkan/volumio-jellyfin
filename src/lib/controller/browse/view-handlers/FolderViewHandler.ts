@@ -1,11 +1,13 @@
 import { EntityType } from '../../../entities';
 import { ModelType } from '../../../model';
-import FilterableViewHandler, { FilterableViewConfig, FilterType } from './FilterableViewHandler';
+import { FilterType } from '../../../model/filter/FilterModel';
+import FilterableViewHandler, { FilterableViewConfig } from './FilterableViewHandler';
 import { RenderedListItem } from './renderer/BaseRenderer';
 import View from './View';
 import { RenderedPage, RenderedPageContents } from './ViewHandler';
 
 export interface FolderView extends View {
+  name: 'folder';
   parentId: string;
 }
 

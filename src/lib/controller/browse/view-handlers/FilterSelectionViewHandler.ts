@@ -1,7 +1,6 @@
 import { ModelType } from '../../../model';
-import FilterModel, { Filter, FilterOption } from '../../../model/filter/FilterModel';
+import FilterModel, { Filter, FilterOption, FilterType, Subfilter } from '../../../model/filter/FilterModel';
 import BaseViewHandler from './BaseViewHandler';
-import { FilterType } from './FilterableViewHandler';
 import View from './View';
 import { RenderedList, RenderedPage } from './ViewHandler';
 import ViewHelper from './ViewHelper';
@@ -18,7 +17,7 @@ export default class FilterSelectionViewHandler extends BaseViewHandler<FilterSe
   async browse(): Promise<RenderedPage> {
     const prevUri = this.constructPrevUri();
     const lastView = this.previousViews[this.previousViews.length - 1];
-    const filterView = JSON.parse(decodeURIComponent(this.currentView.filterView));
+    const filterView = JSON.parse(this.currentView.filterView);
     const combinedView: View = {
       ...lastView,
       ...filterView
@@ -95,7 +94,7 @@ export default class FilterSelectionViewHandler extends BaseViewHandler<FilterSe
     return segments.join('/');
   }
 
-  #getFilterOptionsList(filter: Filter): RenderedList[] {
+  #getFilterOptionsList(filter: Filter | Subfilter): RenderedList[] {
     if (!filter.field || !filter.options) {
       return [];
     }
@@ -131,9 +130,9 @@ export default class FilterSelectionViewHandler extends BaseViewHandler<FilterSe
     return lists;
   }
 
-  #getFilterOptionUri(baseUri: string, filter: Filter, option: FilterOption | null, remember: boolean) {
+  #getFilterOptionUri(baseUri: string, filter: Filter | Subfilter, option: FilterOption | null, remember: boolean) {
     // `filter: null` corresponds to reset filter item
-    const uri = option ? baseUri + (option.value ? `@${filter.field}=${option.value}` : '') : baseUri;
+    const uri = option ? baseUri + (option.value ? `@${filter.field}=${encodeURIComponent(option.value)}` : '') : baseUri;
 
     if (remember) {
       const saveFilter = {
@@ -145,5 +144,4 @@ export default class FilterSelectionViewHandler extends BaseViewHandler<FilterSe
 
     return uri;
   }
-
 }

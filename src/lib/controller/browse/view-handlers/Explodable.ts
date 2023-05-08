@@ -3,6 +3,8 @@ import { ModelType } from '../../../model';
 import BaseViewHandler from './BaseViewHandler';
 import View from './View';
 import { MediaSourceInfo, MediaStream } from '@jellyfin/sdk/lib/generated-client/models';
+import { SongView } from './SongViewHandler';
+import ViewHelper from './ViewHelper';
 
 export interface ExplodedTrackInfo {
   service: 'jellyfin';
@@ -144,7 +146,11 @@ export function Explodable<V extends View, TBase extends Constructor<V>>(Base: T
      */
     _getTrackUri(song: Song): string | null {
       if (this.serverConnection) {
-        return `jellyfin/${this.serverConnection.id}/song@songId=${song.id}`;
+        const songView: SongView = {
+          name: 'song',
+          songId: song.id
+        };
+        return `jellyfin/${this.serverConnection.id}/${ViewHelper.constructUriSegmentFromView(songView)}`;
       }
       return null;
     }

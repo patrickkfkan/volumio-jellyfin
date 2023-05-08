@@ -109,7 +109,7 @@ export default class ConnectionManager extends EventEmitter {
       // Sessions for the user - this can happen when the plugin is restarted within
       // A short timeframe and the session before restart has not yet been marked stale.
       const cachedDeviceIds = jellyfin.getConfigValue<Record<ServerConnection['id'], string>>('connectionDeviceIds', {}, true);
-      const connectionId = `${username}@${server.id}`;
+      const connectionId = ServerHelper.generateConnectionId(username, server);
       let userDeviceId = cachedDeviceIds[connectionId];
       if (!userDeviceId) {
         userDeviceId =  uuidv4();

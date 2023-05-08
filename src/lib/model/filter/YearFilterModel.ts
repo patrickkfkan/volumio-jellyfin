@@ -1,7 +1,7 @@
 import { EntityType } from '../../entities';
 import jellyfin from '../../JellyfinContext';
 import BaseModel, { GetFiltersParams } from '../BaseModel';
-import FilterModel, { Filter, FilterOption } from './FilterModel';
+import FilterModel, { Filter, FilterOption, FilterType } from './FilterModel';
 
 export type YearFilterItemType = EntityType.Album | EntityType.Song;
 
@@ -47,7 +47,7 @@ export default class YearFilterModel extends BaseModel implements FilterModel {
     }, []);
 
     return {
-      type: 'year',
+      type: FilterType.Year,
       title: jellyfin.getI18n('JELLYFIN_FILTER_YEAR_TITLE'),
       placeholder: jellyfin.getI18n('JELLYFIN_FILTER_YEAR_PLACEHOLDER'),
       field: 'years',

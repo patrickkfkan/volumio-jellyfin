@@ -5,7 +5,9 @@ import { RenderedListItem } from './renderer/BaseRenderer';
 import View from './View';
 import { RenderedPage, RenderedPageContents } from './ViewHandler';
 
-export type CollectionsView = View
+export interface CollectionsView extends View {
+  name: 'collections';
+}
 
 export default class CollectionsViewHandler extends BaseViewHandler<CollectionsView> {
 

@@ -1,9 +1,16 @@
 import Album from '../../../../entities/Album';
+import { SongView } from '../SongViewHandler';
+import ViewHelper from '../ViewHelper';
 import BaseRenderer, { RenderedHeader, RenderedListItem } from './BaseRenderer';
 
 export default class AlbumRenderer extends BaseRenderer<Album> {
 
   renderToListItem(data: Album): RenderedListItem | null {
+    const songsView: SongView = {
+      name: 'songs',
+      albumId: data.id
+    };
+    
     return {
       service: 'jellyfin',
       type: 'folder',
@@ -11,7 +18,7 @@ export default class AlbumRenderer extends BaseRenderer<Album> {
       artist: data.artist,
       duration: data.duration,
       albumart: this.getAlbumArt(data),
-      uri: `${this.uri}/songs@albumId=${encodeURIComponent(data.id)}`
+      uri: `${this.uri}/${ViewHelper.constructUriSegmentFromView(songsView)}`
     };
   }
 

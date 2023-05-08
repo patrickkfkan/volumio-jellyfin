@@ -9,8 +9,15 @@ import { EntityType } from '../../../entities';
 import BaseEntity from '../../../entities/BaseEntity';
 import { ExplodedTrackInfo } from './Explodable';
 import ViewHandlerFactory from './ViewHandlerFactory';
+import ViewHelper from './ViewHelper';
+import { AlbumView } from './AlbumViewHandler';
+import { ArtistView } from './ArtistViewHandler';
+import { PlaylistView } from './PlaylistViewHandler';
+import { GenreView } from './GenreViewHandler';
+import { SongView } from './SongViewHandler';
 
 export interface LibraryView extends View {
+  name: 'library';
   parentId: string;
 }
 
@@ -74,42 +81,42 @@ export default class LibraryViewHandler extends BaseViewHandler<LibraryView> {
         service: 'jellyfin',
         type: 'folder',
         title: jellyfin.getI18n('JELLYFIN_ALBUMS'),
-        uri: `${baseUri}/albums@parentId=${libraryId}`,
+        uri: `${baseUri}/${ViewHelper.constructUriSegmentFromView<AlbumView>({ name: 'albums', parentId: libraryId })}`,
         albumart: `/albumart?sourceicon=${baseImgPath}album.png`
       },
       {
         service: 'jellyfin',
         type: 'streaming-category',
         title: jellyfin.getI18n('JELLYFIN_ALBUM_ARTISTS'),
-        uri: `${baseUri}/albumArtists@parentId=${libraryId}`,
+        uri: `${baseUri}/${ViewHelper.constructUriSegmentFromView<ArtistView>({ name: 'albumArtists', parentId: libraryId })}`,
         albumart: `/albumart?sourceicon=${baseImgPath}avatar.png`
       },
       {
         service: 'jellyfin',
         type: 'streaming-category',
         title: jellyfin.getI18n('JELLYFIN_ARTISTS'),
-        uri: `${baseUri}/artists@parentId=${libraryId}`,
+        uri: `${baseUri}/${ViewHelper.constructUriSegmentFromView<ArtistView>({ name: 'artists', parentId: libraryId })}`,
         albumart: `/albumart?sourceicon=${baseImgPath}avatar.png`
       },
       {
         service: 'jellyfin',
         type: 'streaming-category',
         title: jellyfin.getI18n('JELLYFIN_PLAYLISTS'),
-        uri: `${baseUri}/playlists@parentId=${libraryId}`,
+        uri: `${baseUri}/${ViewHelper.constructUriSegmentFromView<PlaylistView>({ name: 'playlists', parentId: libraryId })}`,
         albumart: `/albumart?sourceicon=${baseImgPath}playlist.png`
       },
       {
         service: 'jellyfin',
         type: 'streaming-category',
         title: jellyfin.getI18n('JELLYFIN_GENRES'),
-        uri: `${baseUri}/genres@parentId=${libraryId}`,
+        uri: `${baseUri}/${ViewHelper.constructUriSegmentFromView<GenreView>({ name: 'genres', parentId: libraryId })}`,
         albumart: `/albumart?sourceicon=${baseImgPath}genre.png`
       },
       {
         service: 'jellyfin',
         type: 'folder',
         title: jellyfin.getI18n('JELLYFIN_ALL_SONGS'),
-        uri: `${baseUri}/songs@parentId=${libraryId}`,
+        uri: `${baseUri}/${ViewHelper.constructUriSegmentFromView<SongView>({ name: 'songs', parentId: libraryId })}`,
         albumart: `/albumart?sourceicon=${baseImgPath}song.png`
       }
     ];
@@ -132,7 +139,14 @@ export default class LibraryViewHandler extends BaseViewHandler<LibraryView> {
       sortOrder: 'Descending,Ascending',
       limit: jellyfin.getConfigValue('latestMusicSectionItems', 11)
     };
-    const moreUri = `${baseUri}/albums@parentId=${libraryId}@sortBy=DateCreated,SortName@sortOrder=Descending,Ascending@fixedView=latest`;
+    const albumView: AlbumView = {
+      name: 'albums',
+      parentId: libraryId,
+      sortBy: 'DateCreated,SortName',
+      sortOrder: 'Descending,Ascending',
+      fixedView: 'latest'
+    };
+    const moreUri = `${baseUri}/${ViewHelper.constructUriSegmentFromView(albumView)}`;
 
     return this.#getAlbumList(params, jellyfin.getI18n('JELLYFIN_LATEST_ALBUMS'), moreUri);
   }
@@ -145,7 +159,15 @@ export default class LibraryViewHandler extends BaseViewHandler<LibraryView> {
       filters: 'IsPlayed',
       limit: jellyfin.getConfigValue('recentlyPlayedSectionItems', 5)
     };
-    const moreUri = `${baseUri}/songs@parentId=${libraryId}@sortBy=DatePlayed,SortName@sortOrder=Descending,Ascending@filters=IsPlayed@fixedView=recentlyPlayed`;
+    const songView: SongView = {
+      name: 'songs',
+      parentId: libraryId,
+      sortBy: 'DatePlayed,SortName',
+      sortOrder: 'Descending,Ascending',
+      filters: 'IsPlayed',
+      fixedView: 'recentlyPlayed'
+    };
+    const moreUri = `${baseUri}/${ViewHelper.constructUriSegmentFromView(songView)}`;
 
     return this.#getSongList(params, jellyfin.getI18n('JELLYFIN_RECENTLY_PLAYED_SONGS'), moreUri);
   }
@@ -158,7 +180,15 @@ export default class LibraryViewHandler extends BaseViewHandler<LibraryView> {
       filters: 'IsPlayed',
       limit: jellyfin.getConfigValue('frequentlyPlayedSectionItems', 5)
     };
-    const moreUri = `${baseUri}/songs@parentId=${libraryId}@sortBy=PlayCount,SortName@sortOrder=Descending,Ascending@filters=IsPlayed@fixedView=frequentlyPlayed`;
+    const songView: SongView = {
+      name: 'songs',
+      parentId: libraryId,
+      sortBy: 'PlayCount,SortName',
+      sortOrder: 'Descending,Ascending',
+      filters: 'IsPlayed',
+      fixedView: 'frequentlyPlayed'
+    };
+    const moreUri = `${baseUri}/${ViewHelper.constructUriSegmentFromView(songView)}`;
 
     return this.#getSongList(params, jellyfin.getI18n('JELLYFIN_FREQUENTLY_PLAYED_SONGS'), moreUri);
   }
@@ -169,7 +199,13 @@ export default class LibraryViewHandler extends BaseViewHandler<LibraryView> {
       filters: 'IsFavorite',
       limit: jellyfin.getConfigValue('favoriteArtistsSectionItems', 5)
     };
-    const moreUri = `${baseUri}/artists@parentId=${libraryId}@filters=IsFavorite@fixedView=favorite`;
+    const artistView: ArtistView = {
+      name: 'artists',
+      parentId: libraryId,
+      filters: 'IsFavorite',
+      fixedView: 'favorite'
+    };
+    const moreUri = `${baseUri}/${ViewHelper.constructUriSegmentFromView(artistView)}`;
 
     return this.#getArtistList(params, jellyfin.getI18n('JELLYFIN_FAVORITE_ARTISTS'), moreUri);
   }
@@ -180,7 +216,13 @@ export default class LibraryViewHandler extends BaseViewHandler<LibraryView> {
       filters: 'IsFavorite',
       limit: jellyfin.getConfigValue('favoriteAlbumsSectionItems', 5)
     };
-    const moreUri = `${baseUri}/albums@parentId=${libraryId}@filters=IsFavorite@fixedView=favorite`;
+    const albumView: AlbumView = {
+      name: 'albums',
+      parentId: libraryId,
+      filters: 'IsFavorite',
+      fixedView: 'favorite'
+    };
+    const moreUri = `${baseUri}/${ViewHelper.constructUriSegmentFromView(albumView)}`;
 
     return this.#getAlbumList(params, jellyfin.getI18n('JELLYFIN_FAVORITE_ALBUMS'), moreUri);
   }
@@ -191,7 +233,13 @@ export default class LibraryViewHandler extends BaseViewHandler<LibraryView> {
       filters: 'IsFavorite',
       limit: jellyfin.getConfigValue('favoriteSongsSectionItems', 5)
     };
-    const moreUri = `${baseUri}/songs@parentId=${libraryId}@filters=IsFavorite@fixedView=favorite`;
+    const songView: SongView = {
+      name: 'songs',
+      parentId: libraryId,
+      filters: 'IsFavorite',
+      fixedView: 'favorite'
+    };
+    const moreUri = `${baseUri}/${ViewHelper.constructUriSegmentFromView(songView)}`;
 
     return this.#getSongList(params, jellyfin.getI18n('JELLYFIN_FAVORITE_SONGS'), moreUri);
   }
@@ -241,7 +289,11 @@ export default class LibraryViewHandler extends BaseViewHandler<LibraryView> {
     if (!this.serverConnection) {
       throw Error('No auth');
     }
-    const uri = `${this.uri}/songs@parentId=${this.currentView.parentId}`;
+    const songView: SongView = {
+      name: 'songs',
+      parentId: this.currentView.parentId
+    }
+    const uri = `${this.uri}/${ViewHelper.constructUriSegmentFromView(songView)}`;
     const handler = await ViewHandlerFactory.getHandler(uri, this.serverConnection);
     return handler.explode();
   }

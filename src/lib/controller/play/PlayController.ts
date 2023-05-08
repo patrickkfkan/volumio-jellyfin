@@ -12,6 +12,7 @@ import Model, { ModelType } from '../../model';
 import { ExplodedTrackInfo } from '../browse/view-handlers/Explodable';
 import ServerHelper from '../../util/ServerHelper';
 import { kewToJSPromise } from '../../util';
+import ViewHelper from '../browse/view-handlers/ViewHelper';
 
 interface PlaybackInfo {
   song: Song;
@@ -235,21 +236,14 @@ export default class PlayController {
   }
 
   async getSongFromTrack(track: ExplodedTrackInfo): Promise<{song: Song, connection: ServerConnection}> {
-    const songIdPrefix = 'song@songId=';
-    const uri = track.uri.split('/');
-    const serverConnectionId = uri[1];
-    let songId: string | null = null;
-    if (uri[2].startsWith(songIdPrefix)) {
-      songId = uri[2].substring(songIdPrefix.length).trim();
-      if (songId === '') {
-        songId = null;
-      }
-    }
-    if (uri[0] !== 'jellyfin' || !serverConnectionId || !songId) {
+    const views = ViewHelper.getViewsFromUri(track.uri);
+    const maybeSongView = views.pop() as any;
+    const { songId, username, serverId } = maybeSongView;
+    
+    if (!songId || !username || !serverId) {
       throw Error(`Invalid track uri: ${track.uri}`);
     }
 
-    const [ username, serverId ] = serverConnectionId.split('@');
     const onlineServers = jellyfin.get<Server[]>('onlineServers', []);
     const targetServer = onlineServers.find((server) => server.id === serverId);
 

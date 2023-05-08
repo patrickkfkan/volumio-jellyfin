@@ -4,6 +4,11 @@ import { RenderedList } from '../browse/view-handlers/ViewHandler';
 import jellyfin from '../../JellyfinContext';
 import ViewHandlerFactory from '../browse/view-handlers/ViewHandlerFactory';
 import ServerHelper from '../../util/ServerHelper';
+import { AlbumView } from '../browse/view-handlers/AlbumViewHandler';
+import ViewHelper from '../browse/view-handlers/ViewHelper';
+import { ArtistView } from '../browse/view-handlers/ArtistViewHandler';
+import { SongView } from '../browse/view-handlers/SongViewHandler';
+import View from '../browse/view-handlers/View';
 
 export interface SearchQuery {
   value: string;
@@ -33,17 +38,22 @@ export default class SearchController {
     const onlineServers = jellyfin.get<Server[]>('onlineServers', []);
 
     const searchUris: string[] = serverConfEntries.reduce<string[]>((uris, conf) => {
-      const server = onlineServers.find((server) => server.url === conf.url);
+      const server = onlineServers.find(
+        (server) => ServerHelper.getConnectionUrl(conf.url) === server.connectionUrl);
       if (server) {
-        const usernameAtServerStr = `${conf.username}@${server.id}`;
+        const targetConnectionId = ServerHelper.generateConnectionId(conf.username, server);
+        const baseView: Partial<View> = {
+          search: query.value,
+          collatedSearchResults: '1'
+        };
         if (searchAlbums) {
-          uris.push(`jellyfin/${usernameAtServerStr}/albums@search=${encodeURIComponent(query.value)}@collatedSearchResults=1`);
+          uris.push(`jellyfin/${targetConnectionId}/${ViewHelper.constructUriSegmentFromView<AlbumView>({ ...baseView, name: 'albums' })}`);
         }
         if (searchArtists) {
-          uris.push(`jellyfin/${usernameAtServerStr}/artists@search=${encodeURIComponent(query.value)}@collatedSearchResults=1`);
+          uris.push(`jellyfin/${targetConnectionId}/${ViewHelper.constructUriSegmentFromView<ArtistView>({ ...baseView, name: 'artists' })}`);
         }
         if (searchSongs) {
-          uris.push(`jellyfin/${usernameAtServerStr}/songs@search=${encodeURIComponent(query.value)}@collatedSearchResults=1`);
+          uris.push(`jellyfin/${targetConnectionId}/${ViewHelper.constructUriSegmentFromView<SongView>({ ...baseView, name: 'songs' })}`);
         }
       }
       return uris;

@@ -1,3 +1,4 @@
+import { EntityType } from '../entities';
 import Server from '../entities/Server';
 import jellyfin from '../JellyfinContext';
 
@@ -30,5 +31,17 @@ export default class ServerHelper {
       return sanitized.substring(0, sanitized.length - 1);
     }
     return sanitized;
+  }
+
+  static generateConnectionId(username: string, serverId: string): string;
+  static generateConnectionId(username: string, server: Server): string;
+  static generateConnectionId(username: string, serverTarget: string | Server): string {
+    if (typeof serverTarget === 'string') {
+      return `${encodeURIComponent(username)}@${encodeURIComponent(serverTarget)}`;
+    }
+    else if (typeof serverTarget === 'object' && serverTarget.type === EntityType.Server) {
+      return this.generateConnectionId(username, serverTarget.id);
+    }
+    throw TypeError('serverTarget must be server Id (string) or object meeting Server interface constraint');
   }
 }

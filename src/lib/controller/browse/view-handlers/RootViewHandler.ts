@@ -7,7 +7,9 @@ import { RenderedListItem } from './renderer/BaseRenderer';
 import Server from '../../../entities/Server';
 import ServerHelper from '../../../util/ServerHelper';
 
-export type RootView = View
+export interface RootView extends View {
+  name: 'root';
+}
 
 export default class RootViewHandler extends BaseViewHandler<RootView> {
 

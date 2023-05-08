@@ -6,8 +6,14 @@ import View from './View';
 import { RenderedList, RenderedPage, RenderedPageContents } from './ViewHandler';
 import jellyfin from '../../../JellyfinContext';
 import UserView, { UserViewType } from '../../../entities/UserView';
+import { AlbumView } from './AlbumViewHandler';
+import ViewHelper from './ViewHelper';
 
-export type UserViewView = View
+export interface UserViewView extends View {
+  name: 'userViews';
+  serverId: string;
+  username: string;
+}
 
 export default class UserViewViewHandler extends BaseViewHandler<UserViewView> {
 
@@ -48,7 +54,14 @@ export default class UserViewViewHandler extends BaseViewHandler<UserViewView> {
   }
 
   async #getLatestLibraryAlbumList(library: UserView): Promise<RenderedList> {
-    const moreUri = `${this.uri}/albums@parentId=${library.id}@sortBy=DateCreated,SortName@sortOrder=Descending,Ascending@fixedView=latest`;
+    const albumView: AlbumView = {
+      name: 'albums',
+      parentId: library.id,
+      sortBy: 'DateCreated,SortName',
+      sortOrder: 'Descending,Ascending',
+      fixedView: 'latest'
+    }
+    const moreUri = `${this.uri}/${ViewHelper.constructUriSegmentFromView(albumView)}`;
 
     const model = this.getModel(ModelType.Album);
     const renderer = this.getRenderer(EntityType.Album);

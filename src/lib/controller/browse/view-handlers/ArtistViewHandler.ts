@@ -1,13 +1,16 @@
 import { EntityType } from '../../../entities';
 import { ModelType } from '../../../model';
-import FilterableViewHandler, { FilterableViewConfig, FilterType } from './FilterableViewHandler';
+import FilterableViewHandler, { FilterableViewConfig } from './FilterableViewHandler';
 import { RenderedListItem } from './renderer/BaseRenderer';
 import View from './View';
 import { RenderedPage, RenderedPageContents } from './ViewHandler';
 import jellyfin from '../../../JellyfinContext';
+import ViewHelper from './ViewHelper';
+import { FilterType } from '../../../model/filter/FilterModel';
 
 export interface ArtistView extends View {
-  parentId: string;
+  name: 'artists' | 'albumArtists';
+  parentId?: string;
   search?: string;
   collatedSearchResults?: '1';
 }
@@ -34,7 +37,11 @@ export default class ArtistViewHandler extends FilterableViewHandler<ArtistView>
 
     if (artists.nextStartIndex) {
       if (view.search && view.collatedSearchResults && this.serverConnection) {
-        const moreUri = `jellyfin/${this.serverConnection.id}/artists@search=${encodeURIComponent(view.search)}`;
+        const artistView: ArtistView = {
+          name: 'artists',
+          search: view.search
+        };
+        const moreUri = `jellyfin/${this.serverConnection.id}/${ViewHelper.constructUriSegmentFromView(artistView)}`;
         listItems.push(this.constructMoreItem(moreUri));
       }
       else {
