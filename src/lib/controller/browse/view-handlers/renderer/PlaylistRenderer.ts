@@ -10,8 +10,8 @@ export default class PlaylistRenderer extends BaseRenderer<Playlist> {
     const songView: SongView = {
       name: 'songs',
       playlistId: data.id
-    }
-    
+    };
+
     return {
       service: 'jellyfin',
       type: 'folder',

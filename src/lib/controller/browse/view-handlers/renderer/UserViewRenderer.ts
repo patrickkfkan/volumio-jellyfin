@@ -24,7 +24,7 @@ export default class UserViewRenderer extends BaseRenderer<UserView> {
       case UserViewType.Playlists:
         targetView = {
           name: 'playlists'
-        }
+        };
         type = 'streaming-category';
         break;
 
@@ -32,7 +32,7 @@ export default class UserViewRenderer extends BaseRenderer<UserView> {
         targetView = {
           name: 'library',
           parentId: data.id
-        }
+        };
         type = 'folder';
         break;
 
@@ -40,7 +40,7 @@ export default class UserViewRenderer extends BaseRenderer<UserView> {
         targetView = {
           name: 'folder',
           parentId: data.id
-        }
+        };
         type = 'streaming-category';
         break;
 

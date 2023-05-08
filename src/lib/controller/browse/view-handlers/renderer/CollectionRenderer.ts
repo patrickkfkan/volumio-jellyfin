@@ -10,7 +10,7 @@ export default class CollectionRenderer extends BaseRenderer<Collection> {
       name: 'collection',
       parentId: data.id
     };
-    
+
     return {
       service: 'jellyfin',
       type: 'streaming-category',

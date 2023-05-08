@@ -323,7 +323,7 @@ export default class BaseViewHandler<V extends View> implements ViewHandler {
           const collectionsView: CollectionsView = {
             name: 'collections',
             parentId: pv.parentId
-          }
+          };
           crumbs.push({
             uri: ViewHelper.constructUriSegmentFromView(collectionsView),
             text: jellyfin.getI18n('JELLYFIN_COLLECTIONS')
@@ -370,7 +370,7 @@ export default class BaseViewHandler<V extends View> implements ViewHandler {
           const folderView: FolderView = {
             name: 'folder',
             parentId: pv.parentId
-          }
+          };
           const model = this.getModel(ModelType.Folder);
           const folder = await model.getFolder(pv.parentId);
           if (folder) {

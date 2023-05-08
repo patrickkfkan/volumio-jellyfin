@@ -41,7 +41,7 @@ interface ApiReportPlaybackParams {
   type: 'start' | 'stop' | 'pause' | 'unpause' | 'timeupdate';
   song: Song;
   connection: ServerConnection;
-  seek: number;  // Milliseconds
+  seek: number; // Milliseconds
 }
 
 export default class PlayController {
@@ -239,7 +239,7 @@ export default class PlayController {
     const views = ViewHelper.getViewsFromUri(track.uri);
     const maybeSongView = views.pop() as any;
     const { songId, username, serverId } = maybeSongView;
-    
+
     if (!songId || !username || !serverId) {
       throw Error(`Invalid track uri: ${track.uri}`);
     }
@@ -312,7 +312,7 @@ export default class PlayController {
           }
         });
       }
-      else {  // type: timeupdate
+      else { // Type: timeupdate
         await playstateApi.reportPlaybackProgress({
           playbackProgressInfo: {
             ItemId: song.id,
@@ -320,7 +320,7 @@ export default class PlayController {
           }
         });
       }
-      jellyfin.getLogger().info(`[jellyfin-play]: Reported '${type}' for song: ${song.name}`)
+      jellyfin.getLogger().info(`[jellyfin-play]: Reported '${type}' for song: ${song.name}`);
     }
     catch (error: any) {
       jellyfin.getLogger().error(`[jellyfin-play]: Failed to report '${type}' for song '${song.name}': ${error.message}`);
@@ -329,45 +329,45 @@ export default class PlayController {
 
   async #handleMpdPlayerEvent() {
 
-    const __apiReportPlayback = (playbackInfo: Required<PlaybackInfo> & 
+    const __apiReportPlayback = (playbackInfo: Required<PlaybackInfo> &
       { lastReport?: LastPlaybackReport }, currentStatus: MpdState['status']) => {
-        const reportPayload = {
-          song: playbackInfo.song,
-          connection: playbackInfo.connection,
-          seek: mpdState.seek
-        };
-        const lastStatus = playbackInfo.lastStatus;
-        playbackInfo.lastStatus = currentStatus;
-        let reportType: ApiReportPlaybackParams['type'];
-        switch (currentStatus) {
-          case 'pause':
-            reportType = 'pause';
-            break;
-
-          case 'play':
-            if (lastStatus === 'pause') {
-              reportType = 'unpause';
-            }
-            else if (lastStatus === 'play') {
-              reportType = 'timeupdate';
-            }
-            else {  // lastStatus: stop
-              reportType = 'start'
-            }
-            break;
-
-          case 'stop':
-          default:
-            reportType = 'stop';
-        }
-        // Avoid multiple reports of same type
-        if (playbackInfo.lastReport?.type === reportType &&
-          (reportType !== 'timeupdate' || playbackInfo.lastReport?.seek === reportPayload.seek)) {
-            return;
-        }
-        playbackInfo.lastReport = { type: reportType, seek: reportPayload.seek };
-        return this.#apiReportPlayback({...reportPayload, type: reportType});
+      const reportPayload = {
+        song: playbackInfo.song,
+        connection: playbackInfo.connection,
+        seek: mpdState.seek
       };
+      const lastStatus = playbackInfo.lastStatus;
+      playbackInfo.lastStatus = currentStatus;
+      let reportType: ApiReportPlaybackParams['type'];
+      switch (currentStatus) {
+        case 'pause':
+          reportType = 'pause';
+          break;
+
+        case 'play':
+          if (lastStatus === 'pause') {
+            reportType = 'unpause';
+          }
+          else if (lastStatus === 'play') {
+            reportType = 'timeupdate';
+          }
+          else { // LastStatus: stop
+            reportType = 'start';
+          }
+          break;
+
+        case 'stop':
+        default:
+          reportType = 'stop';
+      }
+      // Avoid multiple reports of same type
+      if (playbackInfo.lastReport?.type === reportType &&
+          (reportType !== 'timeupdate' || playbackInfo.lastReport?.seek === reportPayload.seek)) {
+        return;
+      }
+      playbackInfo.lastReport = { type: reportType, seek: reportPayload.seek };
+      return this.#apiReportPlayback({...reportPayload, type: reportType});
+    };
 
     const mpdState: MpdState = await kewToJSPromise(this.#mpdPlugin.getState());
     // Current stream has not changed
@@ -388,10 +388,8 @@ export default class PlayController {
       await __apiReportPlayback(this.#monitoredPlaybacks.current, mpdState.status);
     }
     // Current stream has changed to one that was not loaded by the plugin
-    else {
-      if (this.#monitoredPlaybacks.current && this.#monitoredPlaybacks.current.lastStatus !== 'stop') {
-        await __apiReportPlayback(this.#monitoredPlaybacks.current, 'stop');
-      }
+    else if (this.#monitoredPlaybacks.current && this.#monitoredPlaybacks.current.lastStatus !== 'stop') {
+      await __apiReportPlayback(this.#monitoredPlaybacks.current, 'stop');
     }
   }
 }

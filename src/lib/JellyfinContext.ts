@@ -79,7 +79,7 @@ class JellyfinContext {
     }
     const deviceInfo = this.get<DeviceInfo | null>('deviceInfo', null);
     if (!deviceInfo) {
-      this.getLogger().warn('[jellyfin] Failed to get device info!')
+      this.getLogger().warn('[jellyfin] Failed to get device info!');
       return DUMMY_DEVICE_INFO;
     }
     return deviceInfo;

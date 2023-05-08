@@ -10,7 +10,7 @@ export default class ArtistRenderer extends BaseRenderer<Artist> {
   renderToListItem(data: Artist, options?: { noParent: boolean }): RenderedListItem | null {
     const albumView: AlbumView = {
       name: 'albums'
-    }
+    };
 
     const parentId = options?.noParent ? null : this.currentView.parentId;
     if (parentId) {
@@ -23,7 +23,7 @@ export default class ArtistRenderer extends BaseRenderer<Artist> {
     else {
       albumView.albumArtistId = data.id;
     }
-    
+
     return {
       service: 'jellyfin',
       type: 'folder',

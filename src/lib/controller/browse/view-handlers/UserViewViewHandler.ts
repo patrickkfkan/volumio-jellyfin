@@ -60,7 +60,7 @@ export default class UserViewViewHandler extends BaseViewHandler<UserViewView> {
       sortBy: 'DateCreated,SortName',
       sortOrder: 'Descending,Ascending',
       fixedView: 'latest'
-    }
+    };
     const moreUri = `${this.uri}/${ViewHelper.constructUriSegmentFromView(albumView)}`;
 
     const model = this.getModel(ModelType.Album);

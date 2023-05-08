@@ -481,7 +481,7 @@ class ControllerJellyfin {
           const albumView: AlbumView = {
             name: 'albums',
             artistId: song.artists[0].id
-          }
+          };
           return jsPromiseToKew(this.#browseController.browseUri(`jellyfin/${connection.id}/${ViewHelper.constructUriSegmentFromView(albumView)}`));
         }
         throw Error('Song is missing artist info');

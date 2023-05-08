@@ -292,7 +292,7 @@ export default class LibraryViewHandler extends BaseViewHandler<LibraryView> {
     const songView: SongView = {
       name: 'songs',
       parentId: this.currentView.parentId
-    }
+    };
     const uri = `${this.uri}/${ViewHelper.constructUriSegmentFromView(songView)}`;
     const handler = await ViewHandlerFactory.getHandler(uri, this.serverConnection);
     return handler.explode();

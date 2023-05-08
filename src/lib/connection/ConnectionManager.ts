@@ -33,15 +33,17 @@ export default class ConnectionManager extends EventEmitter {
     if (conn.auth) {
       return conn;
     }
-    
+
     if (Reflect.has(this.#authenticatingPromises, conn.id)) {
       jellyfin.getLogger().info('[jellyfin-conn] Returning existing auth promise');
       return this.#authenticatingPromises[conn.id];
     }
 
     this.#authenticatingPromises[conn.id] = this.#authenticateConnection(conn, passwordFetch)
-      .finally(() => { delete this.#authenticatingPromises[conn.id]; });
-    
+      .finally(() => {
+        delete this.#authenticatingPromises[conn.id];
+      });
+
     return this.#authenticatingPromises[conn.id];
   }
 
@@ -102,7 +104,7 @@ export default class ConnectionManager extends EventEmitter {
           throw Error('No server found in config');
         }
       }
-      // We can't use the same device ID to login multiple users simultaneously 
+      // We can't use the same device ID to login multiple users simultaneously
       // On same Jellyfin server. Doing so will log out the previous users.
       // Before we generate a new device ID, check if we have cached one for the user.
       // By reusing previously-assigned ID, we avoid the Jellyfin server registering multiple
@@ -112,7 +114,7 @@ export default class ConnectionManager extends EventEmitter {
       const connectionId = ServerHelper.generateConnectionId(username, server);
       let userDeviceId = cachedDeviceIds[connectionId];
       if (!userDeviceId) {
-        userDeviceId =  uuidv4();
+        userDeviceId = uuidv4();
         cachedDeviceIds[connectionId] = userDeviceId;
         jellyfin.setConfigValue('connectionDeviceIds', cachedDeviceIds, true);
         jellyfin.getLogger().info(`[jellyfin-conn] Generated new device Id for ${username}@${server.name}: ${userDeviceId}`);

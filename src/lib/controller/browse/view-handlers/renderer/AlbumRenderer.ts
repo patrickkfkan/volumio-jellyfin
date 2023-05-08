@@ -10,7 +10,7 @@ export default class AlbumRenderer extends BaseRenderer<Album> {
       name: 'songs',
       albumId: data.id
     };
-    
+
     return {
       service: 'jellyfin',
       type: 'folder',
