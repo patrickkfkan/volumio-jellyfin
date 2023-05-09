@@ -14,6 +14,12 @@ class ServerHelper {
         const serverConf = serverConfEntries.find((conf) => conf.url === server.url && conf.username === username);
         return serverConf?.password || '';
     }
+    static hasServerConfig(username, host) {
+        const matchUrl = this.getConnectionUrl(host);
+        const serverConfEntries = this.getServersFromConfig();
+        const serverConf = serverConfEntries.find((conf) => this.getConnectionUrl(conf.url) === matchUrl && conf.username === username);
+        return !!serverConf;
+    }
     static getConnectionUrl(url) {
         const urlObj = new URL(url);
         if (urlObj.hostname === 'localhost' || urlObj.hostname === '127.0.0.1') {

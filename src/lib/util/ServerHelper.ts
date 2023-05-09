@@ -21,6 +21,14 @@ export default class ServerHelper {
     return serverConf?.password || '';
   }
 
+  static hasServerConfig(username: string, host: string): boolean {
+    const matchUrl = this.getConnectionUrl(host);
+    const serverConfEntries = this.getServersFromConfig();
+    const serverConf = serverConfEntries.find(
+      (conf) => this.getConnectionUrl(conf.url) === matchUrl && conf.username === username);
+    return !!serverConf;
+  }
+
   static getConnectionUrl(url: string): string {
     const urlObj = new URL(url);
     if (urlObj.hostname === 'localhost' || urlObj.hostname === '127.0.0.1') {
