@@ -158,7 +158,7 @@ class ControllerJellyfin {
         const password = data['password'] || '';
         const servers = ServerHelper_1.default.getServersFromConfig();
         servers.push({
-            url,
+            url: host,
             username: username,
             password: password
         });

@@ -170,7 +170,7 @@ class ControllerJellyfin {
 
     const servers = ServerHelper.getServersFromConfig();
     servers.push({
-      url,
+      url: host,
       username: username,
       password: password
     });
