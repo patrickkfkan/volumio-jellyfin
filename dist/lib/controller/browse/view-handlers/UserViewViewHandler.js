@@ -35,7 +35,11 @@ class UserViewViewHandler extends BaseViewHandler_1.default {
         if (JellyfinContext_1.default.getConfigValue('showLatestMusicSection', true)) {
             const libraries = userViews.items.filter((userView) => userView.userViewType === UserView_1.UserViewType.Library);
             const latestLibraryAlbumLists = await Promise.all(libraries.map((library) => __classPrivateFieldGet(this, _UserViewViewHandler_instances, "m", _UserViewViewHandler_getLatestLibraryAlbumList).call(this, library)));
-            lists.push(...latestLibraryAlbumLists);
+            latestLibraryAlbumLists.forEach((list) => {
+                if (list.items.length > 0) {
+                    lists.push(list);
+                }
+            });
         }
         const pageContents = {
             prev: {

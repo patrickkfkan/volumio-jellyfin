@@ -36,7 +36,12 @@ export default class UserViewViewHandler extends BaseViewHandler<UserViewView> {
       const libraries = userViews.items.filter((userView) => userView.userViewType === UserViewType.Library);
       const latestLibraryAlbumLists = await Promise.all(libraries.map(
         (library) => this.#getLatestLibraryAlbumList(library)));
-      lists.push(...latestLibraryAlbumLists);
+
+      latestLibraryAlbumLists.forEach((list) => {
+        if (list.items.length > 0) {
+          lists.push(list);
+        }
+      });
     }
 
     const pageContents: RenderedPageContents = {
