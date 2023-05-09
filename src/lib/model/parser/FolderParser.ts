@@ -9,13 +9,14 @@ export default class FolderParser extends BaseParser<Folder> {
 
   async parseDto(data: BaseItemDto, api: Api): Promise<Folder | null> {
     const base = await super.parseDto(data, api);
-    if (!base || (data.Type !== BaseItemKind.Folder && data.Type !== BaseItemKind.CollectionFolder)) {
-      return null;
+    if (!base || (data.Type !== BaseItemKind.Folder &&
+      data.Type !== BaseItemKind.CollectionFolder && data.Type !== BaseItemKind.UserView)) {
+        return null;
     }
 
     const result: Folder = {
       ...base,
-      type: data.Type === BaseItemKind.Folder ? EntityType.Folder : EntityType.CollectionFolder
+      type: data.Type === BaseItemKind.CollectionFolder ? EntityType.CollectionFolder : EntityType.Folder
     };
 
     if (data.Type === BaseItemKind.CollectionFolder && data.CollectionType === 'boxsets') {
