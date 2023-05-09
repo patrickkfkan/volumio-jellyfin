@@ -17,7 +17,8 @@ class ServerHelper {
     static getConnectionUrl(url) {
         const urlObj = new URL(url);
         if (urlObj.hostname === 'localhost' || urlObj.hostname === '127.0.0.1') {
-            urlObj.hostname = JellyfinContext_1.default.getDeviceInfo().host;
+            const deviceUrlObj = new URL(JellyfinContext_1.default.getDeviceInfo().host);
+            urlObj.hostname = deviceUrlObj.hostname;
         }
         const sanitized = urlObj.toString();
         if (sanitized.endsWith('/')) {

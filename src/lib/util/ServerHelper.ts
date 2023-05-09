@@ -24,7 +24,8 @@ export default class ServerHelper {
   static getConnectionUrl(url: string): string {
     const urlObj = new URL(url);
     if (urlObj.hostname === 'localhost' || urlObj.hostname === '127.0.0.1') {
-      urlObj.hostname = jellyfin.getDeviceInfo().host;
+      const deviceUrlObj = new URL(jellyfin.getDeviceInfo().host);
+      urlObj.hostname = deviceUrlObj.hostname;
     }
     const sanitized = urlObj.toString();
     if (sanitized.endsWith('/')) {
