@@ -11,7 +11,7 @@ export default class FolderParser extends BaseParser<Folder> {
     const base = await super.parseDto(data, api);
     if (!base || (data.Type !== BaseItemKind.Folder &&
       data.Type !== BaseItemKind.CollectionFolder && data.Type !== BaseItemKind.UserView)) {
-        return null;
+      return null;
     }
 
     const result: Folder = {
