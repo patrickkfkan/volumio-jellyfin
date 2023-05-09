@@ -85,9 +85,11 @@ class ControllerJellyfin {
       const maxTracks = jellyfin.getConfigValue('maxTracks', 100);
       const noMaxTracksSingleAlbum = jellyfin.getConfigValue('noMaxTracksSingleAlbum', true);
       const noMaxTracksSinglePlaylist = jellyfin.getConfigValue('noMaxTracksSinglePlaylist', true);
+      const gaplessPlayback = jellyfin.getConfigValue('gaplessPlayback', true);
       playAddUIConf.content[0].value = maxTracks;
       playAddUIConf.content[1].value = noMaxTracksSingleAlbum;
       playAddUIConf.content[2].value = noMaxTracksSinglePlaylist;
+      playAddUIConf.content[3].value = gaplessPlayback;
 
       // Search Settings section
       const searchAlbums = jellyfin.getConfigValue('searchAlbums', true);
@@ -229,7 +231,8 @@ class ControllerJellyfin {
   configSavePlayAddSettings(data: any) {
     const noMaxTrackKeys = [
       'noMaxTracksSingleAlbum',
-      'noMaxTracksSinglePlaylist'
+      'noMaxTracksSinglePlaylist',
+      'gaplessPlayback'
     ];
     noMaxTrackKeys.forEach((key) => {
       jellyfin.setConfigValue(key, data[key]);
@@ -450,6 +453,10 @@ class ControllerJellyfin {
 
   previous() {
     return this.#playController?.previous();
+  }
+
+  prefetch(track: any) {
+    return this.#playController?.prefetch(track);
   }
 
   search(query: SearchQuery) {

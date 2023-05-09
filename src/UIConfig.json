@@ -141,7 +141,8 @@
                 "data": [
                     "maxTracks",
                     "noMaxTracksSingleAlbum",
-                    "noMaxTracksSinglePlaylist"
+                    "noMaxTracksSinglePlaylist",
+                    "gaplessPlayback"
                 ]
             },
             "content": [
@@ -163,6 +164,12 @@
                     "element": "switch",
                     "value": true,
                     "label": "TRANSLATE.JELLYFIN_NO_MAX_TRACKS_SINGLE_PLAYLIST"
+                },
+                {
+                    "id": "gaplessPlayback",
+                    "element": "switch",
+                    "value": true,
+                    "label": "TRANSLATE.JELLYFIN_GAPLESS_PLAYBACK"
                 }
             ]
         },

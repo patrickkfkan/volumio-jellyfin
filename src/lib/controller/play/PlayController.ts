@@ -87,7 +87,6 @@ export default class PlayController {
     this.#addMpdPlayerStateListener();
     await this.#doPlay(streamUrl, track);
     await this.#markPlayed(song, connection);
-    jellyfin.getStateMachine().trackType = track.trackType;
   }
 
   // Returns kew promise!
@@ -131,15 +130,50 @@ export default class PlayController {
     this.#monitoredPlaybacks = { current: null, pending: null };
   }
 
-  /*Prefetch(trackBlock) {
-      let uri = trackBlock.uri;
-      let safeUri = uri.replace(/"/g, '\\"');
-      let mpdPlugin = this.mpdPlugin;
-
-      return mpdPlugin.sendMpdCommand('add "' + safeUri + '"', []).then( () => {
-          return mpdPlugin.sendMpdCommand('consume 1', []);
+  // Returns kew promise!
+  async prefetch(track: ExplodedTrackInfo) {
+    const gaplessPlayback = jellyfin.getConfigValue('gaplessPlayback', true);
+    if (!gaplessPlayback) {
+      return libQ.resolve();
+    }
+    const {song, connection} = await this.getSongFromTrack(track);
+    const streamUrl = this.#getStreamUrl(song, connection);
+    this.#monitoredPlaybacks.pending = { song, connection, streamUrl };
+    const mpdPlugin = this.#mpdPlugin;
+    return mpdPlugin.sendMpdCommand(`addid "${streamUrl}"`, [])
+      .then((addIdResp: {Id: string}) => this.#mpdAddTags(addIdResp, track))
+      .then(() => {
+        jellyfin.getLogger().info(`[jellyfin-play] Prefetched and added song to MPD queue: ${song.name}`);
+        return mpdPlugin.sendMpdCommand('consume 1', []);
       });
-  };*/
+  }
+
+  // Returns kew promise!
+  #mpdAddTags(mpdAddIdResponse: { Id: string }, track: ExplodedTrackInfo) {
+    const songId = mpdAddIdResponse?.Id;
+    // Set tags so that songs show the same title, album and artist as Jellyfin.
+    // For songs that do not have metadata - either because it's not provided or the
+    // Song format does not support it - mpd will return different info than Jellyfin if we do
+    // Not set these tags beforehand. This also applies to DSFs - even though they support
+    // Metadata, mpd will not read it because doing so incurs extra overhead and delay.
+    if (songId !== undefined) {
+      const cmdAddTitleTag = {
+        command: 'addtagid',
+        parameters: [ songId, 'title', track.title ]
+      };
+      const cmdAddAlbumTag = {
+        command: 'addtagid',
+        parameters: [ songId, 'album', track.album ]
+      };
+      const cmdAddArtistTag = {
+        command: 'addtagid',
+        parameters: [ songId, 'artist', track.artist ]
+      };
+
+      return this.#mpdPlugin.sendMpdCommandArray([ cmdAddTitleTag, cmdAddAlbumTag, cmdAddArtistTag ]);
+    }
+    return libQ.resolve();
+  }
 
   #getStreamUrl(song: Song, connection: ServerConnection): string {
     const source = song.mediaSources?.[0];
@@ -183,34 +217,7 @@ export default class PlayController {
         // We can then add tags using mpd's song Id.
         return mpdPlugin.sendMpdCommand(`addid "${streamUrl}"`, []);
       })
-      .then((addIdResp: {Id: string}) => {
-        // Set tags so that songs show the same title, album and artist as Jellyfin.
-        // For songs that do not have metadata - either because it's not provided or the
-        // Song format does not support it - mpd will return different info than Jellyfin if we do
-        // Not set these tags beforehand. This also applies to DSFs - even though they support
-        // Metadata, mpd will not read it because doing so incurs extra overhead and delay.
-        if (addIdResp && typeof addIdResp.Id != undefined) {
-          const songId = addIdResp.Id;
-
-          const cmdAddTitleTag = {
-            command: 'addtagid',
-            parameters: [ songId, 'title', track.title ]
-          };
-          const cmdAddAlbumTag = {
-            command: 'addtagid',
-            parameters: [ songId, 'album', track.album ]
-          };
-          const cmdAddArtistTag = {
-            command: 'addtagid',
-            parameters: [ songId, 'artist', track.artist ]
-          };
-
-          return mpdPlugin.sendMpdCommandArray([ cmdAddTitleTag, cmdAddAlbumTag, cmdAddArtistTag ]);
-        }
-
-        return libQ.resolve();
-
-      })
+      .then((addIdResp: {Id: string}) => this.#mpdAddTags(addIdResp, track))
       .then(() => {
         jellyfin.getStateMachine().setConsumeUpdateService('mpd', true, false);
         return mpdPlugin.sendMpdCommand('play', []);

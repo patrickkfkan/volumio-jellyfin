@@ -18,6 +18,7 @@
     "JELLYFIN_MAX_TRACKS": "曲目數量上限",
     "JELLYFIN_NO_MAX_TRACKS_SINGLE_ALBUM": "- 播放或佇列單一專輯時不適用",
     "JELLYFIN_NO_MAX_TRACKS_SINGLE_PLAYLIST": "- 播放或佇列單一播放清單時不適用",
+    "JELLYFIN_GAPLESS_PLAYBACK": "無間斷播放",
     "JELLYFIN_SEARCH_SETTINGS": "搜尋設定",
     "JELLYFIN_SEARCH_ARTISTS": "搜尋藝人",
     "JELLYFIN_SEARCH_RESULT_COUNT": "- 搜尋結果數量",

@@ -18,6 +18,7 @@
     "JELLYFIN_MAX_TRACKS": "Maximum Number of Tracks",
     "JELLYFIN_NO_MAX_TRACKS_SINGLE_ALBUM": "- Do not apply to play / add single Album",
     "JELLYFIN_NO_MAX_TRACKS_SINGLE_PLAYLIST": "- Do not apply to play / add single Playlist",
+    "JELLYFIN_GAPLESS_PLAYBACK": "Gapless Playback",
     "JELLYFIN_SEARCH_SETTINGS": "Search Settings",
     "JELLYFIN_SEARCH_ARTISTS": "Search Artists",
     "JELLYFIN_SEARCH_RESULT_COUNT": "- Result Count",

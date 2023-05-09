@@ -17,6 +17,7 @@ export interface ExplodedTrackInfo {
   bitdepth?: string;
   samplerate?: string;
   trackType?: string;
+  duration: number;
 }
 
 export interface AudioStreamMetadata {
@@ -108,7 +109,8 @@ export function Explodable<V extends View, TBase extends Constructor<V>>(Base: T
         name: song.name,
         title: song.name,
         bitdepth: bitdepth,
-        samplerate: samplerate
+        samplerate: samplerate,
+        duration: song.duration
       };
 
       if (song.album?.name) {
