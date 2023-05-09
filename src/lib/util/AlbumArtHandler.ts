@@ -67,7 +67,16 @@ export default class AlbumArtHandler {
     // Song - get art of album
     else if (item.type === EntityType.Song) {
       const song = item as unknown as Song;
-      url = song.album?.thumbnail;
+      if (song.album?.thumbnail) {
+        url = song.album?.thumbnail;
+      }
+      else if (song.album?.name && song.artists?.[0]?.name) {
+        url = this.#getAlbumArtWithPlugin({
+          album: song.album.name,
+          artist: song.artists[0].name
+        });
+      }
+      defaultImg = 'song.png';
     }
     else {
       url = '/albumart';
