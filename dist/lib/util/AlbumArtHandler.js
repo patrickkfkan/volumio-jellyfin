@@ -28,6 +28,12 @@ class AlbumArtHandler {
         if (item.thumbnail) {
             return item.thumbnail;
         }
+        else if (item.type === entities_1.EntityType.Song) {
+            const song = item;
+            if (song.album?.thumbnail) {
+                return song.album.thumbnail;
+            }
+        }
         const baseImgPath = 'music_service/jellyfin/dist/assets/images/';
         let url;
         let defaultImg;
@@ -73,10 +79,7 @@ class AlbumArtHandler {
         // Song - get art of album
         else if (item.type === entities_1.EntityType.Song) {
             const song = item;
-            if (song.album?.thumbnail) {
-                url = song.album?.thumbnail;
-            }
-            else if (song.album?.name && song.artists?.[0]?.name) {
+            if (song.album?.name && song.artists?.[0]?.name) {
                 url = __classPrivateFieldGet(this, _AlbumArtHandler_instances, "m", _AlbumArtHandler_getAlbumArtWithPlugin).call(this, {
                     album: song.album.name,
                     artist: song.artists[0].name
