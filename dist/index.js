@@ -408,39 +408,41 @@ class ControllerJellyfin {
         }
         return kew_1.default.reject('Jellyfin plugin is not started');
     }
-    async goto(data) {
-        if (!__classPrivateFieldGet(this, _ControllerJellyfin_playController, "f") || !__classPrivateFieldGet(this, _ControllerJellyfin_browseController, "f")) {
-            throw Error('Jellyfin plugin is not started');
-        }
-        try {
-            const { song, connection } = await __classPrivateFieldGet(this, _ControllerJellyfin_playController, "f").getSongFromTrack(data);
-            if (data.type === 'album') {
-                if (song.album?.id) {
-                    const songView = {
-                        name: 'songs',
-                        albumId: song.album.id
-                    };
-                    return (0, util_1.jsPromiseToKew)(__classPrivateFieldGet(this, _ControllerJellyfin_browseController, "f").browseUri(`jellyfin/${connection.id}/${ViewHelper_1.default.constructUriSegmentFromView(songView)}`));
+    goto(data) {
+        return (0, util_1.jsPromiseToKew)((async () => {
+            if (!__classPrivateFieldGet(this, _ControllerJellyfin_playController, "f") || !__classPrivateFieldGet(this, _ControllerJellyfin_browseController, "f")) {
+                throw Error('Jellyfin plugin is not started');
+            }
+            try {
+                const { song, connection } = await __classPrivateFieldGet(this, _ControllerJellyfin_playController, "f").getSongFromTrack(data);
+                if (data.type === 'album') {
+                    if (song.album?.id) {
+                        const songView = {
+                            name: 'songs',
+                            albumId: song.album.id
+                        };
+                        return __classPrivateFieldGet(this, _ControllerJellyfin_browseController, "f").browseUri(`jellyfin/${connection.id}/${ViewHelper_1.default.constructUriSegmentFromView(songView)}`);
+                    }
+                    throw Error('Song is missing album info');
                 }
-                throw Error('Song is missing album info');
-            }
-            else if (data.type === 'artist') {
-                if (song.artists?.[0]?.id) {
-                    const albumView = {
-                        name: 'albums',
-                        artistId: song.artists[0].id
-                    };
-                    return (0, util_1.jsPromiseToKew)(__classPrivateFieldGet(this, _ControllerJellyfin_browseController, "f").browseUri(`jellyfin/${connection.id}/${ViewHelper_1.default.constructUriSegmentFromView(albumView)}`));
+                else if (data.type === 'artist') {
+                    if (song.artists?.[0]?.id) {
+                        const albumView = {
+                            name: 'albums',
+                            artistId: song.artists[0].id
+                        };
+                        return __classPrivateFieldGet(this, _ControllerJellyfin_browseController, "f").browseUri(`jellyfin/${connection.id}/${ViewHelper_1.default.constructUriSegmentFromView(albumView)}`);
+                    }
+                    throw Error('Song is missing artist info');
                 }
-                throw Error('Song is missing artist info');
+                else {
+                    throw Error(`Invalid type '${data.type}'`);
+                }
             }
-            else {
-                throw Error(`Invalid type '${data.type}'`);
+            catch (error) {
+                throw Error(`Failed to fetch requested info: ${error.message}`);
             }
-        }
-        catch (error) {
-            throw Error(`Failed to fetch requested info: ${error.message}`);
-        }
+        })());
     }
 }
 _ControllerJellyfin_context = new WeakMap(), _ControllerJellyfin_config = new WeakMap(), _ControllerJellyfin_commandRouter = new WeakMap(), _ControllerJellyfin_serverPoller = new WeakMap(), _ControllerJellyfin_connectionManager = new WeakMap(), _ControllerJellyfin_browseController = new WeakMap(), _ControllerJellyfin_searchController = new WeakMap(), _ControllerJellyfin_playController = new WeakMap(), _ControllerJellyfin_instances = new WeakSet(), _ControllerJellyfin_addToBrowseSources = function _ControllerJellyfin_addToBrowseSources() {

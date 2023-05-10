@@ -19,6 +19,7 @@ import ServerHelper from './lib/util/ServerHelper';
 import { SongView } from './lib/controller/browse/view-handlers/SongViewHandler';
 import ViewHelper from './lib/controller/browse/view-handlers/ViewHelper';
 import { AlbumView } from './lib/controller/browse/view-handlers/AlbumViewHandler';
+import { RenderedPage } from './lib/controller/browse/view-handlers/ViewHandler';
 
 interface GotoParams extends ExplodedTrackInfo {
   type: 'album' | 'artist';
@@ -477,40 +478,42 @@ class ControllerJellyfin {
     return libQ.reject('Jellyfin plugin is not started');
   }
 
-  async goto(data: GotoParams): Promise<any> {
-    if (!this.#playController || !this.#browseController) {
-      throw Error('Jellyfin plugin is not started');
-    }
+  goto(data: GotoParams) {
+    return jsPromiseToKew((async (): Promise<RenderedPage> => {
+      if (!this.#playController || !this.#browseController) {
+        throw Error('Jellyfin plugin is not started');
+      }
 
-    try {
-      const { song, connection } = await this.#playController.getSongFromTrack(data);
-      if (data.type === 'album') {
-        if (song.album?.id) {
-          const songView: SongView = {
-            name: 'songs',
-            albumId: song.album.id
-          };
-          return jsPromiseToKew(this.#browseController.browseUri(`jellyfin/${connection.id}/${ViewHelper.constructUriSegmentFromView(songView)}`));
+      try {
+        const { song, connection } = await this.#playController.getSongFromTrack(data);
+        if (data.type === 'album') {
+          if (song.album?.id) {
+            const songView: SongView = {
+              name: 'songs',
+              albumId: song.album.id
+            };
+            return this.#browseController.browseUri(`jellyfin/${connection.id}/${ViewHelper.constructUriSegmentFromView(songView)}`);
+          }
+          throw Error('Song is missing album info');
         }
-        throw Error('Song is missing album info');
-      }
-      else if (data.type === 'artist') {
-        if (song.artists?.[0]?.id) {
-          const albumView: AlbumView = {
-            name: 'albums',
-            artistId: song.artists[0].id
-          };
-          return jsPromiseToKew(this.#browseController.browseUri(`jellyfin/${connection.id}/${ViewHelper.constructUriSegmentFromView(albumView)}`));
+        else if (data.type === 'artist') {
+          if (song.artists?.[0]?.id) {
+            const albumView: AlbumView = {
+              name: 'albums',
+              artistId: song.artists[0].id
+            };
+            return this.#browseController.browseUri(`jellyfin/${connection.id}/${ViewHelper.constructUriSegmentFromView(albumView)}`);
+          }
+          throw Error('Song is missing artist info');
         }
-        throw Error('Song is missing artist info');
+        else {
+          throw Error(`Invalid type '${data.type}'`);
+        }
       }
-      else {
-        throw Error(`Invalid type '${data.type}'`);
+      catch (error: any) {
+        throw Error(`Failed to fetch requested info: ${error.message}`);
       }
-    }
-    catch (error: any) {
-      throw Error(`Failed to fetch requested info: ${error.message}`);
-    }
+    })());
   }
 }
 

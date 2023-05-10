@@ -29,7 +29,7 @@ declare class ControllerJellyfin {
     previous(): any;
     prefetch(track: any): Promise<any> | undefined;
     search(query: SearchQuery): any;
-    goto(data: GotoParams): Promise<any>;
+    goto(data: GotoParams): any;
 }
 export = ControllerJellyfin;
 //# sourceMappingURL=index.d.ts.map
