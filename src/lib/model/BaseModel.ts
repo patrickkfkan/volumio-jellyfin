@@ -8,7 +8,7 @@ import { FilterApiGetQueryFiltersLegacyRequest } from '@jellyfin/sdk/lib/generat
 import { UserLibraryApiGetItemRequest } from '@jellyfin/sdk/lib/generated-client/api/user-library-api';
 import { ImageType } from '@jellyfin/sdk/lib/generated-client/models/image-type';
 import Parser from './parser/Parser';
-import { BaseItemKind, ItemFields, ItemFilter } from '@jellyfin/sdk/lib/generated-client/models';
+import { BaseItemDto, BaseItemKind, ItemFields, ItemFilter } from '@jellyfin/sdk/lib/generated-client/models';
 import ServerConnection from '../connection/ServerConnection';
 import { EntityType } from '../entities';
 
@@ -85,23 +85,30 @@ export default class BaseModel {
       const itemsApi = getItemsApi(this.#connection.api);
       response = await itemsApi.getItemsByUserId(apiParams);
     }
-    const parsePromises = response.data.Items?.map((data: any) => parser.parseDto(data, this.#connection.api)) || [];
-    const items = await Promise.all<T>(parsePromises);
-    const filtered = items.filter((item) => item);
 
+    const responseItems = response.data?.Items || [];
+    const filtered = await this.parseItemDtos(responseItems, parser);
     const itemsResult: GetItemsResult<T> = {
       items: filtered,
       startIndex: params.startIndex || 0, // Don't use StartIndex from response (possibly always 0)
       total: response.data.TotalRecordCount || 0,
-      omitted: items.length - filtered.length
+      omitted: responseItems.length - filtered.length
     };
 
-    const nextStartIndex = itemsResult.startIndex + items.length;
+    const nextStartIndex = itemsResult.startIndex + responseItems.length;
     if (itemsResult.total > nextStartIndex) {
       itemsResult.nextStartIndex = nextStartIndex;
     }
 
     return itemsResult;
+  }
+
+  protected async parseItemDtos<T>(items: BaseItemDto[], parser: Parser<T>, filterNull?: true): Promise<T[]>;
+  protected async parseItemDtos<T>(items: BaseItemDto[], parser: Parser<T>, filterNull: false): Promise<(T | null)[]>;
+  protected async parseItemDtos<T>(items: BaseItemDto[], parser: Parser<T>, filterNull = true): Promise<(T | null)[]> {
+    const parsePromises = items.map<Promise<T | null>>((data: any) => parser.parseDto(data, this.#connection.api));
+    const parsedItems = await Promise.all<T | null>(parsePromises);
+    return filterNull ? parsedItems.filter((item) => item !== null) : parsedItems;
   }
 
   async getItemFromApi<T>(params: GetItemParams, parser: Parser<T>): Promise<T | null> {

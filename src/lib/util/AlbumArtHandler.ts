@@ -47,10 +47,10 @@ export default class AlbumArtHandler {
     // Album - fetch from web if possible (using AlbumArt plugin)
     else if (item.type === EntityType.Album) {
       const album = item as unknown as Album;
-      if (album.artist) {
+      if (album.albumArtist) {
         url = this.#getAlbumArtWithPlugin({
           album: album.name,
-          artist: album.artist
+          artist: album.albumArtist
         });
       }
       defaultImg = 'album.png';

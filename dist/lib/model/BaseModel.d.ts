@@ -1,7 +1,7 @@
 import { Api } from '@jellyfin/sdk';
 import { SortOrder } from '@jellyfin/sdk/lib/generated-client/models/sort-order';
 import Parser from './parser/Parser';
-import { ItemFields, ItemFilter } from '@jellyfin/sdk/lib/generated-client/models';
+import { BaseItemDto, ItemFields, ItemFilter } from '@jellyfin/sdk/lib/generated-client/models';
 import ServerConnection from '../connection/ServerConnection';
 import { EntityType } from '../entities';
 export interface GetItemsResult<T> {
@@ -50,6 +50,8 @@ export default class BaseModel {
     #private;
     constructor(connection: ServerConnection);
     getItemsFromAPI<T, A = unknown>(params: GetItemsParams, parser: Parser<T>, getApiMethod?: GetApiMethod<A>): Promise<GetItemsResult<T>>;
+    protected parseItemDtos<T>(items: BaseItemDto[], parser: Parser<T>, filterNull?: true): Promise<T[]>;
+    protected parseItemDtos<T>(items: BaseItemDto[], parser: Parser<T>, filterNull: false): Promise<(T | null)[]>;
     getItemFromApi<T>(params: GetItemParams, parser: Parser<T>): Promise<T | null>;
     getFiltersFromApi(params: GetFiltersParams): Promise<GetFiltersResult>;
     get connection(): ServerConnection;

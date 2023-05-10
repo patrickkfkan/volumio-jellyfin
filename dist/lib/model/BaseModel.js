@@ -36,20 +36,24 @@ class BaseModel {
             const itemsApi = (0, items_api_1.getItemsApi)(__classPrivateFieldGet(this, _BaseModel_connection, "f").api);
             response = await itemsApi.getItemsByUserId(apiParams);
         }
-        const parsePromises = response.data.Items?.map((data) => parser.parseDto(data, __classPrivateFieldGet(this, _BaseModel_connection, "f").api)) || [];
-        const items = await Promise.all(parsePromises);
-        const filtered = items.filter((item) => item);
+        const responseItems = response.data?.Items || [];
+        const filtered = await this.parseItemDtos(responseItems, parser);
         const itemsResult = {
             items: filtered,
             startIndex: params.startIndex || 0,
             total: response.data.TotalRecordCount || 0,
-            omitted: items.length - filtered.length
+            omitted: responseItems.length - filtered.length
         };
-        const nextStartIndex = itemsResult.startIndex + items.length;
+        const nextStartIndex = itemsResult.startIndex + responseItems.length;
         if (itemsResult.total > nextStartIndex) {
             itemsResult.nextStartIndex = nextStartIndex;
         }
         return itemsResult;
+    }
+    async parseItemDtos(items, parser, filterNull = true) {
+        const parsePromises = items.map((data) => parser.parseDto(data, __classPrivateFieldGet(this, _BaseModel_connection, "f").api));
+        const parsedItems = await Promise.all(parsePromises);
+        return filterNull ? parsedItems.filter((item) => item !== null) : parsedItems;
     }
     async getItemFromApi(params, parser) {
         const apiParams = __classPrivateFieldGet(this, _BaseModel_instances, "m", _BaseModel_toApiGetItemParams).call(this, params);

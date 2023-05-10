@@ -53,10 +53,10 @@ class AlbumArtHandler {
         // Album - fetch from web if possible (using AlbumArt plugin)
         else if (item.type === entities_1.EntityType.Album) {
             const album = item;
-            if (album.artist) {
+            if (album.albumArtist) {
                 url = __classPrivateFieldGet(this, _AlbumArtHandler_instances, "m", _AlbumArtHandler_getAlbumArtWithPlugin).call(this, {
                     album: album.name,
-                    artist: album.artist
+                    artist: album.albumArtist
                 });
             }
             defaultImg = 'album.png';
