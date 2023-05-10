@@ -17,6 +17,14 @@ You can add multiple servers, each with multple user accounts, and those that ar
 
 #### Changelog
 
+1.0.3
+- [Fixed] Regression with playback of legacy URIs (pre-1.0) stored in Volumio playlists
+- [Fixed] Extra query string param added to image URL of songs
+- [Fixed] Goto function crashing Volumio
+- [Changed] Show albums by artist in separate 'Albums' and 'Appears On' sections
+- [Changed] Only search once per user/server pair (where server URL is different for each pair but points to the same server)
+- [Added] 'More like this' section in album view
+
 1.0.2
 - [Fixed] Login err when server config contains different URLs pointing to same server
 - [Fixed] Login err when server is removed, followed by adding it back
