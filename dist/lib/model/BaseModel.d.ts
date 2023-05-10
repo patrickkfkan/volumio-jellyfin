@@ -26,10 +26,12 @@ export interface GetItemsParams {
     nameStartsWith?: string;
     itemTypes?: GetItemType[] | string;
     excludeItemTypes?: GetItemType[] | string;
+    excludeItemIds?: string[] | string;
     fields?: ItemFields[] | string;
     genreIds?: string[] | string;
     artistIds?: string[] | string;
     albumArtistIds?: string[] | string;
+    contributingArtistIds?: string[] | string;
     years?: number[] | string;
     search?: string;
 }

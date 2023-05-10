@@ -151,17 +151,25 @@ _BaseModel_connection = new WeakMap(), _BaseModel_instances = new WeakSet(), _Ba
             }
         });
     }
+    const excludeItemIds = __classPrivateFieldGet(this, _BaseModel_instances, "m", _BaseModel_ensureTypedArray).call(this, params.excludeItemIds);
+    if (excludeItemIds.length > 0) {
+        result.excludeItemIds = excludeItemIds;
+    }
     const genreIds = __classPrivateFieldGet(this, _BaseModel_instances, "m", _BaseModel_ensureTypedArray).call(this, params.genreIds);
-    if (genreIds) {
+    if (genreIds.length > 0) {
         result.genreIds = genreIds;
     }
     const artistIds = __classPrivateFieldGet(this, _BaseModel_instances, "m", _BaseModel_ensureTypedArray).call(this, params.artistIds);
-    if (artistIds) {
+    if (artistIds.length > 0) {
         result.artistIds = artistIds;
     }
     const albumArtistIds = __classPrivateFieldGet(this, _BaseModel_instances, "m", _BaseModel_ensureTypedArray).call(this, params.albumArtistIds);
-    if (albumArtistIds) {
+    if (albumArtistIds.length > 0) {
         result.albumArtistIds = albumArtistIds;
+    }
+    const contributingArtistIds = __classPrivateFieldGet(this, _BaseModel_instances, "m", _BaseModel_ensureTypedArray).call(this, params.contributingArtistIds);
+    if (contributingArtistIds.length > 0) {
+        result.contributingArtistIds = contributingArtistIds;
     }
     if (params.years) {
         if (Array.isArray(params.years)) {

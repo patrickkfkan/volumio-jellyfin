@@ -42,10 +42,12 @@ export interface GetItemsParams {
   nameStartsWith?: string;
   itemTypes?: GetItemType[] | string;
   excludeItemTypes?: GetItemType[] | string;
+  excludeItemIds?: string[] | string;
   fields?: ItemFields[] | string;
   genreIds?: string[] | string;
   artistIds?: string[] | string;
   albumArtistIds?: string[] | string;
+  contributingArtistIds?: string[] | string;
   years?: number[] | string;
   search?: string;
 }
@@ -209,19 +211,29 @@ export default class BaseModel {
       });
     }
 
+    const excludeItemIds = this.#ensureTypedArray(params.excludeItemIds);
+    if (excludeItemIds.length > 0) {
+      result.excludeItemIds = excludeItemIds;
+    }
+
     const genreIds = this.#ensureTypedArray(params.genreIds);
-    if (genreIds) {
+    if (genreIds.length > 0) {
       result.genreIds = genreIds;
     }
 
     const artistIds = this.#ensureTypedArray(params.artistIds);
-    if (artistIds) {
+    if (artistIds.length > 0) {
       result.artistIds = artistIds;
     }
 
     const albumArtistIds = this.#ensureTypedArray(params.albumArtistIds);
-    if (albumArtistIds) {
+    if (albumArtistIds.length > 0) {
       result.albumArtistIds = albumArtistIds;
+    }
+
+    const contributingArtistIds = this.#ensureTypedArray(params.contributingArtistIds);
+    if (contributingArtistIds.length > 0) {
+      result.contributingArtistIds = contributingArtistIds;
     }
 
     if (params.years) {
