@@ -302,6 +302,30 @@ export default class BaseModel {
     return result;
   }
 
+  async markFavorite(itemId: string): Promise<boolean> {
+    if (!this.connection.auth?.User?.Id) {
+      throw Error('No auth');
+    }
+    const userLibraryApi = getUserLibraryApi(this.connection.api);
+    const markFavoriteResponse = await userLibraryApi.markFavoriteItem({
+      itemId,
+      userId: this.connection.auth.User.Id
+    });
+    return !!markFavoriteResponse.data.IsFavorite;
+  }
+
+  async unmarkFavorite(itemId: string): Promise<boolean> {
+    if (!this.connection.auth?.User?.Id) {
+      throw Error('No auth');
+    }
+    const userLibraryApi = getUserLibraryApi(this.connection.api);
+    const unmarkFavoriteResponse = await userLibraryApi.unmarkFavoriteItem({
+      itemId,
+      userId: this.connection.auth.User.Id
+    });
+    return !!unmarkFavoriteResponse.data.IsFavorite;
+  }
+
   #ensureTypedArray<T>(value?: string | string[] | T[]): T[] {
     if (!value) {
       return [];

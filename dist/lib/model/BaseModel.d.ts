@@ -54,6 +54,8 @@ export default class BaseModel {
     protected parseItemDtos<T>(items: BaseItemDto[], parser: Parser<T>, filterNull: false): Promise<(T | null)[]>;
     getItemFromApi<T>(params: GetItemParams, parser: Parser<T>): Promise<T | null>;
     getFiltersFromApi(params: GetFiltersParams): Promise<GetFiltersResult>;
+    markFavorite(itemId: string): Promise<boolean>;
+    unmarkFavorite(itemId: string): Promise<boolean>;
     get connection(): ServerConnection;
 }
 export {};

@@ -14,12 +14,13 @@ import ConnectionManager, { JellyfinSdkInitInfo } from './lib/connection/Connect
 import SearchController, { SearchQuery } from './lib/controller/search/SearchController';
 import PlayController from './lib/controller/play/PlayController';
 import { ExplodedTrackInfo } from './lib/controller/browse/view-handlers/Explodable';
-import { jsPromiseToKew } from './lib/util';
+import { jsPromiseToKew, kewToJSPromise } from './lib/util';
 import ServerHelper from './lib/util/ServerHelper';
 import { SongView } from './lib/controller/browse/view-handlers/SongViewHandler';
 import ViewHelper from './lib/controller/browse/view-handlers/ViewHelper';
 import { AlbumView } from './lib/controller/browse/view-handlers/AlbumViewHandler';
 import { RenderedPage } from './lib/controller/browse/view-handlers/ViewHandler';
+import SongHelper from './lib/util/SongHelper';
 
 interface GotoParams extends ExplodedTrackInfo {
   type: 'album' | 'artist';
@@ -512,6 +513,73 @@ class ControllerJellyfin {
       }
       catch (error: any) {
         throw Error(`Failed to fetch requested info: ${error.message}`);
+      }
+    })());
+  }
+
+  addToFavourites(data: { uri: string, service: string }) {
+    return this.#setSongFavorite(data.uri, true);
+  }
+
+  removeFromFavourites(data: {uri: string, service: string}) {
+    return this.#setSongFavorite(data.uri, false);
+  }
+
+  #setSongFavorite(uri: string, favorite: boolean) {
+    return jsPromiseToKew((async (): Promise<{ favourite: boolean } | { success: false } | undefined> => {
+      if (!this.#connectionManager) {
+        throw Error('Jellyfin plugin is not started');
+      }
+      // Unlike Jellyfin, you can only 'heart' songs in Volumio.
+      // Note that adding items through 'Add to Playlist -> Favorites' is not the same as clicking the 'heart' icon - it goes through
+      // Volumio's `playlistManager.addToPlaylist()` instead, and that method does not support custom plugin implementations.
+      try {
+        const setFavoriteResult = await SongHelper.setFavoriteByUri(uri, favorite, this.#connectionManager);
+        if (setFavoriteResult.favorite) {
+          jellyfin.getLogger().info(`[jellyfin] Marked favorite on server: ${setFavoriteResult.canonicalUri}`);
+        }
+        else {
+          jellyfin.getLogger().info(`[jellyfin] Unmarked favorite on server: ${setFavoriteResult.canonicalUri}`);
+        }
+
+        const canonicalUri = setFavoriteResult.canonicalUri;
+
+        // If removing from favorites (which, btw, you can only do in Favourites or player view when song is playing), Volumio will also
+        // Call its own implementation. But if adding to favorites, then we need to do it ourselves.
+        if (favorite) {
+          // Add to Volumio 'Favorites' playlist
+          const playlistManager = jellyfin.getPlaylistManager();
+          // Do better than Volumio's implementation by checking if song already added
+          const favouritesPage = await kewToJSPromise(playlistManager.listFavourites()) as RenderedPage;
+          const alreadyAdded = favouritesPage.navigation?.lists?.[0]?.items.some((item) => item.uri === canonicalUri);
+          if (!alreadyAdded) {
+            jellyfin.getLogger().info(`[jellyfin] Adding song to Volumio favorites: ${canonicalUri}`);
+            await kewToJSPromise(playlistManager.commonAddToPlaylist(
+              playlistManager.favouritesPlaylistFolder, 'favourites', 'jellyfin', canonicalUri));
+          }
+          else {
+            jellyfin.getLogger().info(`[jellyfin] Volumio favorites already contains entry with song URI: ${canonicalUri}`);
+          }
+        }
+
+        // ONLY return `{favourite: boolean}` if current playing track points to the same (un)favorited song, otherwise Volumio UI will blindly
+        // Update the heart icon in the player view even if it is playing a different track.
+        if (jellyfin.getStateMachine().getState().uri === canonicalUri) {
+          return { favourite: setFavoriteResult.favorite };
+        }
+
+        return undefined;
+      }
+      catch (error: any) {
+        if (favorite) {
+          jellyfin.getLogger().error('Failed to add song to favorites: ', error);
+          jellyfin.toast('error', `Failed to add song to favorites: ${error.message}`);
+        }
+        else {
+          jellyfin.getLogger().error('Failed to remove song from favorites: ', error);
+          jellyfin.toast('error', `Failed to remove song from favorites: ${error.message}`);
+        }
+        return { success: false };
       }
     })());
   }

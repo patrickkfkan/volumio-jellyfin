@@ -13,7 +13,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _ControllerJellyfin_instances, _ControllerJellyfin_context, _ControllerJellyfin_config, _ControllerJellyfin_commandRouter, _ControllerJellyfin_serverPoller, _ControllerJellyfin_connectionManager, _ControllerJellyfin_browseController, _ControllerJellyfin_searchController, _ControllerJellyfin_playController, _ControllerJellyfin_addToBrowseSources;
+var _ControllerJellyfin_instances, _ControllerJellyfin_context, _ControllerJellyfin_config, _ControllerJellyfin_commandRouter, _ControllerJellyfin_serverPoller, _ControllerJellyfin_connectionManager, _ControllerJellyfin_browseController, _ControllerJellyfin_searchController, _ControllerJellyfin_playController, _ControllerJellyfin_addToBrowseSources, _ControllerJellyfin_setSongFavorite;
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 const kew_1 = __importDefault(require("kew"));
@@ -31,6 +31,7 @@ const PlayController_1 = __importDefault(require("./lib/controller/play/PlayCont
 const util_1 = require("./lib/util");
 const ServerHelper_1 = __importDefault(require("./lib/util/ServerHelper"));
 const ViewHelper_1 = __importDefault(require("./lib/controller/browse/view-handlers/ViewHelper"));
+const SongHelper_1 = __importDefault(require("./lib/util/SongHelper"));
 class ControllerJellyfin {
     constructor(context) {
         _ControllerJellyfin_instances.add(this);
@@ -444,6 +445,12 @@ class ControllerJellyfin {
             }
         })());
     }
+    addToFavourites(data) {
+        return __classPrivateFieldGet(this, _ControllerJellyfin_instances, "m", _ControllerJellyfin_setSongFavorite).call(this, data.uri, true);
+    }
+    removeFromFavourites(data) {
+        return __classPrivateFieldGet(this, _ControllerJellyfin_instances, "m", _ControllerJellyfin_setSongFavorite).call(this, data.uri, false);
+    }
 }
 _ControllerJellyfin_context = new WeakMap(), _ControllerJellyfin_config = new WeakMap(), _ControllerJellyfin_commandRouter = new WeakMap(), _ControllerJellyfin_serverPoller = new WeakMap(), _ControllerJellyfin_connectionManager = new WeakMap(), _ControllerJellyfin_browseController = new WeakMap(), _ControllerJellyfin_searchController = new WeakMap(), _ControllerJellyfin_playController = new WeakMap(), _ControllerJellyfin_instances = new WeakSet(), _ControllerJellyfin_addToBrowseSources = function _ControllerJellyfin_addToBrowseSources() {
     const data = {
@@ -454,6 +461,58 @@ _ControllerJellyfin_context = new WeakMap(), _ControllerJellyfin_config = new We
         albumart: '/albumart?sourceicon=music_service/jellyfin/dist/assets/images/jellyfin-mono.png'
     };
     __classPrivateFieldGet(this, _ControllerJellyfin_commandRouter, "f").volumioAddToBrowseSources(data);
+}, _ControllerJellyfin_setSongFavorite = function _ControllerJellyfin_setSongFavorite(uri, favorite) {
+    return (0, util_1.jsPromiseToKew)((async () => {
+        if (!__classPrivateFieldGet(this, _ControllerJellyfin_connectionManager, "f")) {
+            throw Error('Jellyfin plugin is not started');
+        }
+        // Unlike Jellyfin, you can only 'heart' songs in Volumio.
+        // Note that adding items through 'Add to Playlist -> Favorites' is not the same as clicking the 'heart' icon - it goes through
+        // Volumio's `playlistManager.addToPlaylist()` instead, and that method does not support custom plugin implementations.
+        try {
+            const setFavoriteResult = await SongHelper_1.default.setFavoriteByUri(uri, favorite, __classPrivateFieldGet(this, _ControllerJellyfin_connectionManager, "f"));
+            if (setFavoriteResult.favorite) {
+                JellyfinContext_1.default.getLogger().info(`[jellyfin] Marked favorite on server: ${setFavoriteResult.canonicalUri}`);
+            }
+            else {
+                JellyfinContext_1.default.getLogger().info(`[jellyfin] Unmarked favorite on server: ${setFavoriteResult.canonicalUri}`);
+            }
+            const canonicalUri = setFavoriteResult.canonicalUri;
+            // If removing from favorites (which, btw, you can only do in Favourites or player view when song is playing), Volumio will also
+            // Call its own implementation. But if adding to favorites, then we need to do it ourselves.
+            if (favorite) {
+                // Add to Volumio 'Favorites' playlist
+                const playlistManager = JellyfinContext_1.default.getPlaylistManager();
+                // Do better than Volumio's implementation by checking if song already added
+                const favouritesPage = await (0, util_1.kewToJSPromise)(playlistManager.listFavourites());
+                const alreadyAdded = favouritesPage.navigation?.lists?.[0]?.items.some((item) => item.uri === canonicalUri);
+                if (!alreadyAdded) {
+                    JellyfinContext_1.default.getLogger().info(`[jellyfin] Adding song to Volumio favorites: ${canonicalUri}`);
+                    await (0, util_1.kewToJSPromise)(playlistManager.commonAddToPlaylist(playlistManager.favouritesPlaylistFolder, 'favourites', 'jellyfin', canonicalUri));
+                }
+                else {
+                    JellyfinContext_1.default.getLogger().info(`[jellyfin] Volumio favorites already contains entry with song URI: ${canonicalUri}`);
+                }
+            }
+            // ONLY return `{favourite: boolean}` if current playing track points to the same (un)favorited song, otherwise Volumio UI will blindly
+            // Update the heart icon in the player view even if it is playing a different track.
+            if (JellyfinContext_1.default.getStateMachine().getState().uri === canonicalUri) {
+                return { favourite: setFavoriteResult.favorite };
+            }
+            return undefined;
+        }
+        catch (error) {
+            if (favorite) {
+                JellyfinContext_1.default.getLogger().error('Failed to add song to favorites: ', error);
+                JellyfinContext_1.default.toast('error', `Failed to add song to favorites: ${error.message}`);
+            }
+            else {
+                JellyfinContext_1.default.getLogger().error('Failed to remove song from favorites: ', error);
+                JellyfinContext_1.default.toast('error', `Failed to remove song from favorites: ${error.message}`);
+            }
+            return { success: false };
+        }
+    })());
 };
 module.exports = ControllerJellyfin;
 //# sourceMappingURL=index.js.map

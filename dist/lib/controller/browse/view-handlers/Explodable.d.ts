@@ -29,7 +29,7 @@ export declare function Explodable<V extends View, TBase extends Constructor<V>>
         _parseSongForExplode(song: Song): Promise<ExplodedTrackInfo | null>;
         _getAudioStreamMetadata(song: Song): AudioStreamMetadata | null;
         /**
-         * Track uri:
+         * Track uri is the canonical uri of the song:
          * jellyfin/{username}@{serverId}/song@songId={songId}
          */
         _getTrackUri(song: Song): string | null;
