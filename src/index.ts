@@ -78,10 +78,13 @@ class ControllerJellyfin {
       const showAllAlbumTracks = jellyfin.getConfigValue('showAllAlbumTracks', true);
       const showAllPlaylistTracks = jellyfin.getConfigValue('showAllPlaylistTracks', true);
       const rememberFilters = jellyfin.getConfigValue('rememberFilters', true);
+      const markFavoriteTarget = jellyfin.getConfigValue('markFavoriteTarget', 'all');
+      const markFavoriteTargetOptions = browseSettingsUIConf.content[4].options;
       browseSettingsUIConf.content[0].value = itemsPerPage;
       browseSettingsUIConf.content[1].value = showAllAlbumTracks;
       browseSettingsUIConf.content[2].value = showAllPlaylistTracks;
       browseSettingsUIConf.content[3].value = rememberFilters;
+      browseSettingsUIConf.content[4].value = markFavoriteTargetOptions.find((option: any) => option.value === markFavoriteTarget);
 
       // Play / Add to Queue section
       const maxTracks = jellyfin.getConfigValue('maxTracks', 100);
@@ -230,6 +233,8 @@ class ControllerJellyfin {
     showKeys.forEach((key) => {
       jellyfin.setConfigValue(key, data[key]);
     });
+
+    jellyfin.setConfigValue('markFavoriteTarget', data['markFavoriteTarget'].value);
 
     const itemsPerPage = parseInt(data.itemsPerPage, 10);
     if (itemsPerPage) {
@@ -545,8 +550,8 @@ class ControllerJellyfin {
         const canonicalUri = setFavoriteResult.canonicalUri;
 
         // If removing from favorites (which, btw, you can only do in Favourites or player view when song is playing), Volumio will also
-        // Call its own implementation. But if adding to favorites, then we need to do it ourselves.
-        if (favorite) {
+        // Call its own implementation. But if adding to favorites, then we need to do it ourselves (subject to `markFavoriteTarget` setting).
+        if (favorite && jellyfin.getConfigValue('markFavoriteTarget', 'all') === 'all') {
           // Add to Volumio 'Favorites' playlist
           const playlistManager = jellyfin.getPlaylistManager();
           // Do better than Volumio's implementation by checking if song already added

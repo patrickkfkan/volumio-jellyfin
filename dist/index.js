@@ -75,10 +75,13 @@ class ControllerJellyfin {
             const showAllAlbumTracks = JellyfinContext_1.default.getConfigValue('showAllAlbumTracks', true);
             const showAllPlaylistTracks = JellyfinContext_1.default.getConfigValue('showAllPlaylistTracks', true);
             const rememberFilters = JellyfinContext_1.default.getConfigValue('rememberFilters', true);
+            const markFavoriteTarget = JellyfinContext_1.default.getConfigValue('markFavoriteTarget', 'all');
+            const markFavoriteTargetOptions = browseSettingsUIConf.content[4].options;
             browseSettingsUIConf.content[0].value = itemsPerPage;
             browseSettingsUIConf.content[1].value = showAllAlbumTracks;
             browseSettingsUIConf.content[2].value = showAllPlaylistTracks;
             browseSettingsUIConf.content[3].value = rememberFilters;
+            browseSettingsUIConf.content[4].value = markFavoriteTargetOptions.find((option) => option.value === markFavoriteTarget);
             // Play / Add to Queue section
             const maxTracks = JellyfinContext_1.default.getConfigValue('maxTracks', 100);
             const noMaxTracksSingleAlbum = JellyfinContext_1.default.getConfigValue('noMaxTracksSingleAlbum', true);
@@ -207,6 +210,7 @@ class ControllerJellyfin {
         showKeys.forEach((key) => {
             JellyfinContext_1.default.setConfigValue(key, data[key]);
         });
+        JellyfinContext_1.default.setConfigValue('markFavoriteTarget', data['markFavoriteTarget'].value);
         const itemsPerPage = parseInt(data.itemsPerPage, 10);
         if (itemsPerPage) {
             JellyfinContext_1.default.setConfigValue('itemsPerPage', itemsPerPage);
@@ -479,8 +483,8 @@ _ControllerJellyfin_context = new WeakMap(), _ControllerJellyfin_config = new We
             }
             const canonicalUri = setFavoriteResult.canonicalUri;
             // If removing from favorites (which, btw, you can only do in Favourites or player view when song is playing), Volumio will also
-            // Call its own implementation. But if adding to favorites, then we need to do it ourselves.
-            if (favorite) {
+            // Call its own implementation. But if adding to favorites, then we need to do it ourselves (subject to `markFavoriteTarget` setting).
+            if (favorite && JellyfinContext_1.default.getConfigValue('markFavoriteTarget', 'all') === 'all') {
                 // Add to Volumio 'Favorites' playlist
                 const playlistManager = JellyfinContext_1.default.getPlaylistManager();
                 // Do better than Volumio's implementation by checking if song already added
