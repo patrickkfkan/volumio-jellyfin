@@ -26,6 +26,12 @@ interface GotoParams extends ExplodedTrackInfo {
   type: 'album' | 'artist';
 }
 
+type SetSongFavoriteResponse = {
+  service: 'jellyfin',
+  uri: string,
+  favourite: boolean
+} | { success: false } | undefined;
+
 class ControllerJellyfin {
   #context: any;
   #config: any;
@@ -531,7 +537,7 @@ class ControllerJellyfin {
   }
 
   #setSongFavorite(uri: string, favorite: boolean) {
-    return jsPromiseToKew((async (): Promise<{ favourite: boolean } | { success: false } | undefined> => {
+    return jsPromiseToKew((async (): Promise<SetSongFavoriteResponse> => {
       if (!this.#connectionManager) {
         throw Error('Jellyfin plugin is not started');
       }
@@ -567,10 +573,21 @@ class ControllerJellyfin {
           }
         }
 
-        // ONLY return `{favourite: boolean}` if current playing track points to the same (un)favorited song, otherwise Volumio UI will blindly
-        // Update the heart icon in the player view even if it is playing a different track.
+        /**
+         * ONLY return `{...favourite: boolean}` if current playing track points to the same (un)favorited song, otherwise
+         * Volumio UI will blindly update the heart icon in the player view even if it is playing a different track*.
+         * * This only works when `markFavoriteTarget` is `serverOnly' and a song is being favorited.  See:
+         * 1. `checkFavourites()` in `playlistManager.commonAddToPlaylist()`; and
+         * 2. `playlistManager.removeFromFavourites()`
+         */
         if (jellyfin.getStateMachine().getState().uri === canonicalUri) {
-          return { favourite: setFavoriteResult.favorite };
+          // Return full response in the hope that one day Volumio UI will actually compare the uri with the one currently played
+          // Before refreshing the heart icon in player view.
+          return {
+            service: 'jellyfin',
+            uri: canonicalUri || '',
+            favourite: setFavoriteResult.favorite
+          };
         }
 
         return undefined;
