@@ -112,7 +112,7 @@ class PlayController {
         __classPrivateFieldSet(this, _PlayController_monitoredPlaybacks, { current: null, pending: null }, "f");
     }
     async prefetch(track) {
-        const gaplessPlayback = JellyfinContext_1.default.getConfigValue('gaplessPlayback', true);
+        const gaplessPlayback = JellyfinContext_1.default.getConfigValue('gaplessPlayback');
         if (!gaplessPlayback) {
             /**
              * Volumio doesn't check whether `prefetch()` is actually performed or

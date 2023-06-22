@@ -158,7 +158,7 @@ export default class PlayController {
   }
 
   async prefetch(track: ExplodedTrackInfo) {
-    const gaplessPlayback = jellyfin.getConfigValue('gaplessPlayback', true);
+    const gaplessPlayback = jellyfin.getConfigValue('gaplessPlayback');
     if (!gaplessPlayback) {
       /**
        * Volumio doesn't check whether `prefetch()` is actually performed or
