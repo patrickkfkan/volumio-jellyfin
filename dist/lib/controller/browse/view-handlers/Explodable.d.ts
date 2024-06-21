@@ -33,13 +33,13 @@ export declare function Explodable<V extends View, TBase extends Constructor<V>>
          * jellyfin/{username}@{serverId}/song@songId={songId}
          */
         _getTrackUri(song: Song): string | null;
-        "__#17@#uri": string;
-        "__#17@#currentView": V;
-        "__#17@#previousViews": View[];
-        "__#17@#connection": import("../../../connection/ServerConnection").default | null;
-        "__#17@#models": Record<any, import("../../../model/BaseModel").default>;
-        "__#17@#renderers": Record<any, import("./renderer/BaseRenderer").default<import("../../../entities/BaseEntity").default> | null>;
-        "__#17@#albumArtHandler": import("../../../util/AlbumArtHandler").default;
+        "__#50@#uri": string;
+        "__#50@#currentView": V;
+        "__#50@#previousViews": View[];
+        "__#50@#connection": import("../../../connection/ServerConnection").default | null;
+        "__#50@#models": Record<any, import("../../../model/BaseModel").default>;
+        "__#50@#renderers": Record<any, import("./renderer/BaseRenderer").default<import("../../../entities/BaseEntity").default> | null>;
+        "__#50@#albumArtHandler": import("../../../util/AlbumArtHandler").default;
         browse(): Promise<import("./ViewHandler").RenderedPage>;
         readonly uri: string;
         readonly currentView: V;
